@@ -1,0 +1,1096 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1f2a5c">
+<title>Fil d'Or : atelier de couture</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" id="favicon" type="image/png" href="favicon-32.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Fil d'Or">
+<meta name="description" content="Gestion d'atelier de couture : commandes, mesures, photos de modèles, acomptes, rappels WhatsApp. Fonctionne sans connexion.">
+<style>
+:root{
+  --indigo:#1f2a5c; --indigo-2:#2d3b7a; --ochre:#d99a1e; --ochre-soft:#f1d9a0; --terra:#b5482a;
+  --cream:#f6efe2; --paper:#fffdf8; --ink:#231f1a; --muted:#6f6556; --line:#e2d6bf; --green:#1f7a4d;
+  --tint:31,42,92; --on-accent:#1a1a1a;
+  --st-wait:#9a6700; --st-wait-bg:#fbefd2; --st-prog:#2a6fb0; --st-prog-bg:#dfeaf7;
+  --st-ready:#1f7a4d; --st-ready-bg:#dcf1e5; --st-done:#6b6559; --st-done-bg:#e8e6e1;
+  --st-late:#b5482a; --st-late-bg:#f9e0d9;
+  --serif:"Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;color:var(--ink);font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;padding-bottom:92px;
+  background-color:var(--cream);
+  background-image:
+    linear-gradient(135deg,rgba(var(--tint),.05) 25%,transparent 25%),
+    linear-gradient(225deg,rgba(var(--tint),.05) 25%,transparent 25%),
+    linear-gradient(45deg,rgba(var(--tint),.05) 25%,transparent 25%),
+    linear-gradient(315deg,rgba(var(--tint),.05) 25%,var(--cream) 25%);
+  background-size:30px 30px;background-position:15px 0,15px 0,0 0,0 0;
+}
+
+body.nomotif{background-image:none}
+/* ===== En-tête : logo, atelier, profil, mètre ruban ===== */
+.topwrap{position:sticky;top:0;z-index:5;box-shadow:0 2px 8px rgba(var(--tint),.25)}
+.top{background:var(--indigo);color:#fff;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.brand{display:flex;align-items:center;gap:10px;min-width:0}
+#logo{width:44px;height:44px;flex:none;display:block;border-radius:50%;box-shadow:0 0 0 2px var(--ochre),0 0 0 4px rgba(241,217,160,.35)}
+#logo svg{width:100%;height:100%;display:block}
+.brand h1{margin:0;font:700 1.2rem/1.1 var(--serif);letter-spacing:.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.brand small{color:var(--ochre-soft);font-size:.74rem;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.me{background:none;border:none;color:#fff;display:flex;flex-direction:column;align-items:center;gap:3px;padding:0;cursor:pointer;flex:none}
+.av{width:42px;height:42px;border-radius:50%;border:2px solid var(--ochre);background:var(--ochre-soft);color:var(--indigo);display:grid;place-items:center;overflow:hidden;font:700 .95rem var(--serif)}
+.av img{width:100%;height:100%;object-fit:cover;display:block}
+.av svg{width:60%;height:60%}
+.me .nm{font-size:.68rem;max-width:84px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--ochre-soft)}
+.tape{height:16px;background:
+  linear-gradient(90deg,#3b2f1e 1px,transparent 1px) 0 100%/8px 6px repeat-x,
+  linear-gradient(90deg,#3b2f1e 1px,transparent 1px) 0 100%/40px 12px repeat-x,
+  #e9c46a}
+
+main{max-width:720px;margin:0 auto;padding:14px 16px}
+
+/* ===== Titres de section avec point de couture ===== */
+.sec{display:flex;align-items:center;gap:10px;font:700 1.02rem var(--serif);color:var(--indigo);margin:16px 0 8px}
+.sec::after{content:"";flex:1;border-top:2px dashed var(--ochre)}
+h3{font:700 1.02rem var(--serif);color:var(--indigo);margin:18px 0 6px}
+
+/* ===== Statistiques ===== */
+.cards{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:12px}
+.stat{background:var(--paper);border:1px solid var(--line);border-radius:12px 3px 12px 3px;padding:10px 6px;text-align:center;position:relative}
+.stat b{display:block;font:700 1.2rem var(--serif);color:var(--indigo)}
+.stat span{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.stat.bad b{color:var(--terra)} .stat.warn b{color:#9a6a00}
+
+/* ===== Filtres ===== */
+.chips{display:flex;flex-wrap:wrap;gap:12px 8px;padding:6px 6px 8px;margin:0 -6px 6px}
+.chip{--c:var(--indigo);display:inline-flex;align-items:center;gap:7px;border:none;background:var(--c);color:#fff;border-radius:10px 3px 10px 3px;padding:9px 13px;font-size:.88rem;font-weight:600;white-space:nowrap;cursor:pointer;flex:1 1 auto;justify-content:center}
+.chip[data-f="En attente"]{--c:var(--st-wait)}
+.chip[data-f="En cours"]{--c:var(--st-prog)}
+.chip[data-f="Prêt"]{--c:var(--st-ready)}
+.chip[data-f="Livré"]{--c:var(--st-done)}
+.chip .n{font-size:.74rem;background:rgba(255,255,255,.24);border-radius:999px;padding:0 7px;min-width:22px;text-align:center}
+.chip.on{box-shadow:0 0 0 2px var(--cream),0 0 0 4px var(--c);font-weight:800}
+.chip.on::before{content:"✓";font-weight:800}
+
+/* ===== Fiche de commande : étiquette de tailleur ===== */
+.list{display:flex;flex-direction:column;gap:10px}
+.item{position:relative;display:flex;gap:10px;align-items:flex-start;background:var(--paper);border:1px solid var(--line);border-left:7px solid var(--ochre);border-radius:3px 16px 16px 3px;padding:14px 14px 14px 30px;cursor:pointer;box-shadow:0 1px 0 rgba(0,0,0,.04)}
+.item::before{content:"";position:absolute;left:8px;top:14px;width:11px;height:11px;border-radius:50%;background:var(--cream);box-shadow:inset 0 1px 3px rgba(0,0,0,.4)}
+.item::after{content:"";position:absolute;inset:5px 5px 5px 2px;border:1.5px dashed rgba(var(--tint),.22);border-radius:2px 12px 12px 2px;pointer-events:none}
+.item[data-s="En attente"]{border-left-color:var(--st-wait)}
+.item[data-s="En cours"]{border-left-color:var(--st-prog)}
+.item[data-s="Prêt"]{border-left-color:var(--st-ready)}
+.item[data-s="Livré"]{border-left-color:var(--st-done)}
+.ithumb{width:54px;height:70px;object-fit:cover;border-radius:6px;border:1px solid var(--line);flex:none;background:#fbf5e6}
+.ibody{flex:1;min-width:0}
+.item .r1{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.item .r1 .who{font:700 1.02rem var(--serif);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.item .r2{color:var(--muted);font-size:.9rem;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.item .r3{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px 8px;margin-top:8px;font-size:.86rem}
+.reste{font-weight:700;color:var(--indigo)}
+.reste.ok{color:var(--green)}
+
+
+.empty{text-align:center;color:var(--muted);padding:30px 8px}
+
+/* ===== Formulaires : lignes de registre ===== */
+input,select,textarea{width:100%;padding:11px 10px;border:none;border-bottom:2px solid var(--line);border-radius:6px 6px 0 0;font:inherit;background:rgba(255,255,255,.75);color:var(--ink)}
+input:focus,select:focus,textarea:focus{outline:none;border-bottom-color:var(--ochre);background:#fff}
+textarea{min-height:70px;resize:vertical}
+label{display:block;font-size:.76rem;color:var(--muted);margin:12px 0 2px;text-transform:uppercase;letter-spacing:.05em}
+button{font:inherit;cursor:pointer;border-radius:10px 3px 10px 3px;border:1.5px solid var(--indigo-2);background:transparent;color:var(--indigo);padding:10px 14px}
+button.primary{background:var(--indigo);color:#fff;border-color:var(--indigo);border-bottom:3px solid var(--ochre);font-weight:700}
+button.danger{color:var(--terra);border-color:var(--terra)}
+a.btn{display:inline-block;text-decoration:none;border-radius:10px 3px 10px 3px;padding:10px 14px;border:1.5px solid var(--indigo-2);color:var(--indigo);background:transparent}
+a.btn.wa{background:#1f7a4d;color:#fff;border-color:#1f7a4d;font-weight:700}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;align-items:center}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.note{font-size:.82rem;color:var(--muted);margin-top:8px}
+
+/* ===== Bouton + Commande : bouton de couture ===== */
+.fab{position:fixed;right:16px;bottom:86px;display:flex;align-items:center;gap:8px;background:var(--ochre);color:var(--on-accent);border:none;border-radius:999px;padding:12px 20px 12px 14px;font-weight:800;box-shadow:0 5px 16px rgba(var(--tint),.35);z-index:6;outline:2px dashed rgba(var(--tint),.6);outline-offset:-5px}
+.fab i{font:700 1.5rem/1 var(--serif);width:26px;height:26px;border-radius:50%;background:var(--on-accent);color:var(--ochre);display:grid;place-items:center;font-style:normal}
+
+/* ===== Navigation basse ===== */
+nav.tabs{position:fixed;left:0;right:0;bottom:0;background:var(--paper);border-top:2px dashed var(--ochre);display:flex;z-index:7;padding-bottom:env(safe-area-inset-bottom)}
+nav.tabs button{flex:1;border:none;border-radius:0;background:none;padding:9px 4px 8px;color:var(--muted);font-size:.78rem;display:flex;flex-direction:column;align-items:center;gap:3px;position:relative}
+nav.tabs svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+nav.tabs button.on{color:var(--indigo);font-weight:700}
+nav.tabs button.on::before{content:"";position:absolute;top:-7px;left:50%;margin-left:-6px;width:12px;height:12px;border-radius:50%;background:var(--ochre);border:2px solid var(--paper);box-shadow:0 0 0 1.5px var(--indigo)}
+
+/* ===== Fenêtres : bord festonné ===== */
+.overlay{position:fixed;inset:0;background:rgba(20,24,50,.55);z-index:20;display:flex;align-items:flex-end;justify-content:center}
+.sheet{position:relative;background:var(--paper);width:100%;max-width:720px;margin-top:24px}
+.sheet::before{content:"";position:absolute;left:0;right:0;top:-9px;height:10px;background:radial-gradient(circle at 8px 10px,var(--paper) 0 8px,transparent 8.5px) 0 0/16px 10px repeat-x}
+.sheet-in{max-height:90vh;overflow:auto;padding:16px 16px 22px}
+.sheet h2{margin:0 28px 6px 0;font:700 1.2rem var(--serif);color:var(--indigo)}
+.sheet .x{position:absolute;right:8px;top:6px;border:none;font-size:1.6rem;padding:2px 10px;background:none;color:var(--indigo)}
+.kv{display:flex;justify-content:space-between;gap:12px;padding:6px 0;border-bottom:1px dashed var(--line)}
+.kv span:last-child{text-align:right}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:96px;background:var(--indigo);color:#fff;padding:10px 16px;border-radius:10px 3px 10px 3px;z-index:40;font-size:.9rem;border-bottom:3px solid var(--ochre);max-width:90vw}
+
+/* ===== Photos du modèle ===== */
+.pgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:4px}
+.ptile{position:relative;aspect-ratio:3/4;border:2px dashed var(--ochre);border-radius:10px;background:#fbf5e6;display:grid;place-items:center;overflow:hidden;cursor:pointer;color:var(--ochre)}
+.ptile.has{border-style:solid;border-color:var(--indigo)}
+.ptile.busy{opacity:.5;pointer-events:none}
+.ptile svg{width:44%;height:auto;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.ptile img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.plab{position:absolute;left:0;right:0;bottom:0;text-align:center;font-size:.62rem;padding:3px 2px;background:rgba(31,42,92,.88);color:#fff;letter-spacing:.03em}
+.pbtn{position:absolute;top:4px;width:22px;height:22px;border-radius:50%;border:none;padding:0;font-size:.85rem;line-height:22px;text-align:center;color:#fff;box-shadow:0 1px 4px rgba(0,0,0,.4)}
+.pbtn.rm{right:4px;background:var(--terra)}
+.pbtn.rp{left:4px;background:var(--indigo)}
+.lightbox{position:fixed;inset:0;background:rgba(10,12,30,.92);z-index:50;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:16px}
+.lightbox img{max-width:100%;max-height:82vh;border-radius:8px;border:2px solid var(--ochre-soft)}
+.lightbox span{color:var(--ochre-soft);font:700 1rem var(--serif)}
+
+/* ===== Profil ===== */
+.pro{display:flex;flex-direction:column;align-items:center;gap:8px;padding:6px 0 4px}
+.pro .av{width:92px;height:92px;font-size:1.8rem;border-width:3px}
+.pro .who{font:700 1.15rem var(--serif);color:var(--indigo);text-align:center}
+.pro .sub{color:var(--muted);font-size:.85rem;text-align:center}
+
+/* ===== Étiquettes de statut : sobres ===== */
+.tag{--c:var(--muted);--cb:var(--line);display:inline-flex;align-items:center;gap:6px;font-size:.74rem;font-weight:700;letter-spacing:.01em;line-height:1.2;padding:4px 9px;border-radius:6px;color:var(--c);background:var(--cb);white-space:nowrap}
+.tag .dot{width:7px;height:7px;border-radius:50%;background:currentColor;flex:none}
+.tag[data-s="En attente"]{--c:var(--st-wait);--cb:var(--st-wait-bg)}
+.tag[data-s="En cours"]{--c:var(--st-prog);--cb:var(--st-prog-bg)}
+.tag[data-s="Prêt"]{--c:var(--st-ready);--cb:var(--st-ready-bg)}
+.tag[data-s="Livré"]{--c:var(--st-done);--cb:var(--st-done-bg)}
+.tag.late{background:var(--st-late);color:#fff}
+.tag.neutral{font-weight:600}
+
+/* ===== Thème : palettes et fonds ===== */
+.sws{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.sw{display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 4px;border:1.5px solid var(--line);border-radius:10px 3px 10px 3px;background:var(--paper);font-size:.78rem;color:var(--ink)}
+.sw .dots{width:34px;height:34px;border-radius:50%;display:block}
+.sw.on{border-color:var(--indigo);box-shadow:inset 0 0 0 2px var(--indigo);font-weight:700}
+.sw.on span:last-child::before{content:"✓ "}
+input[type=color]{padding:3px;height:44px;cursor:pointer}
+.updatebar{position:fixed;left:12px;right:12px;bottom:148px;z-index:45;background:var(--indigo);color:#fff;border-radius:12px 3px 12px 3px;border-bottom:3px solid var(--ochre);padding:10px 12px;display:flex;gap:10px;align-items:center;justify-content:space-between;font-size:.88rem;box-shadow:0 6px 18px rgba(var(--tint),.4)}
+.updatebar .btns{display:flex;gap:6px;flex:none}
+.updatebar button{background:var(--ochre);color:var(--on-accent);border:none;font-weight:700;padding:8px 12px;white-space:nowrap}
+.updatebar button.later{background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,.5);font-weight:600}
+.pwa-ok{color:var(--green);font-weight:700}
+/* ===== Reçu imprimable ===== */
+#receipt{display:none}
+@media print{
+  body{background:#fff;padding:0}
+  .topwrap,main,nav.tabs,.fab,.overlay,.toast,.lightbox,.updatebar{display:none!important}
+  #receipt{display:block!important;font:14px/1.5 system-ui,Arial,sans-serif;padding:24px;max-width:600px;margin:0 auto;color:#111}
+  #receipt .rh{display:flex;gap:14px;align-items:center;border-bottom:3px double var(--indigo);padding-bottom:12px;margin-bottom:14px}
+  #receipt .rh svg{width:64px;height:64px}
+  #receipt h2{margin:0;font:700 1.4rem Georgia,serif;color:var(--indigo)}
+  #receipt .kv{border-bottom:1px solid #ccc}
+  #receipt .rp{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:14px 0}
+  #receipt .rp div{text-align:center;font-size:.7rem}
+  #receipt .rp img{width:100%;aspect-ratio:3/4;object-fit:cover;border:1px solid #999}
+}
+</style>
+</head>
+<body>
+
+<div class="topwrap">
+  <div class="top">
+    <div class="brand"><span id="logo"></span><div><h1 id="shopTitle">Fil d'Or</h1><small id="subTitle">Atelier de couture</small></div></div>
+    <button class="me" id="me" type="button" aria-label="Mon profil"></button>
+  </div>
+  <div class="tape"></div>
+</div>
+
+<main id="view"></main>
+
+<button class="fab" id="fab" type="button" aria-label="Nouvelle commande"><i>+</i>Commande</button>
+
+<nav class="tabs" id="tabs">
+  <button type="button" data-tab="orders" class="on">
+    <svg viewBox="0 0 24 24"><path d="M3 12V4h8l10 10-8 8z"/><circle cx="7.5" cy="8.5" r="1.3"/></svg>Commandes
+  </button>
+  <button type="button" data-tab="clients">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.6"/><path d="M4.5 20c.8-4 3.5-6 7.5-6s6.700 2 7.500 6"/></svg>Clients
+  </button>
+  <button type="button" data-tab="settings">
+    <svg viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h2M10 17h10M4 12h16"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg>Réglages
+  </button>
+</nav>
+<div id="receipt"></div>
+
+<script>
+(function(){
+"use strict";
+
+/* ===== BEGIN-PURE : fonctions testables ===== */
+var STATUSES = ["En attente","En cours","Prêt","Livré"];
+var CUR = { XOF:{sym:"FCFA",dec:0}, XAF:{sym:"FCFA",dec:0}, CDF:{sym:"FC",dec:0}, USD:{sym:"$",dec:2}, EUR:{sym:"€",dec:2} };
+function num(v){ var n = parseFloat(String(v).replace(",", ".")); return isFinite(n) ? n : 0; }
+function money(n, cur){
+  var c = CUR[cur] || CUR.XOF;
+  return new Intl.NumberFormat("fr-FR",{minimumFractionDigits:c.dec,maximumFractionDigits:c.dec}).format(n) + " " + c.sym;
+}
+function paidOf(o){ return (o.payments||[]).reduce(function(s,p){ return s + num(p.amount); }, 0); }
+function balanceOf(o){ return Math.max(0, num(o.price) - paidOf(o)); }
+function todayISO(){ var d=new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
+function addDays(iso, n){ var p=iso.split("-"); var d=new Date(+p[0],+p[1]-1,+p[2]); d.setDate(d.getDate()+n); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
+function fdate(iso){ if(!iso) return "—"; var p=iso.split("-"); return p.length===3 ? p[2]+"/"+p[1]+"/"+p[0] : iso; }
+function isLate(o, today){ return !!o.due && o.status !== "Livré" && o.due < today; }
+function isSoon(o, today){ return !!o.due && o.status !== "Livré" && o.due >= today && o.due <= addDays(today,7); }
+function waLink(phone, text, cc){
+  var raw = String(phone||"").trim();
+  var d = raw.replace(/\D/g,"");
+  if(!d) return "";
+  if(raw.charAt(0) === "+") { /* déjà international */ }
+  else if(d.slice(0,2) === "00") d = d.slice(2);
+  else if(d.charAt(0) === "0") d = String(cc||"").replace(/\D/g,"") + d.slice(1);
+  return "https://wa.me/" + d + "?text=" + encodeURIComponent(text||"");
+}
+function summarize(orders, today){
+  var late=0, soon=0, due=0;
+  orders.forEach(function(o){
+    if(isLate(o,today)) late++;
+    if(isSoon(o,today)) soon++;
+    due += balanceOf(o);
+  });
+  return {late:late, soon:soon, due:due};
+}
+function initials(name){
+  var parts = String(name||"").trim().split(/\s+/).filter(Boolean);
+  if(!parts.length) return "";
+  return (parts[0].charAt(0) + (parts.length > 1 ? parts[parts.length-1].charAt(0) : "")).toUpperCase();
+}
+function photoIds(orders, profile){
+  var ids = [];
+  (orders||[]).forEach(function(o){ var p = o.photos || {}; Object.keys(p).forEach(function(k){ if(p[k]) ids.push(p[k]); }); });
+  if(profile && profile.photo) ids.push(profile.photo);
+  return ids;
+}
+/* --- Thème --- */
+var DEFAULT_THEME = {preset:"fildor", main:"#1f2a5c", accent:"#d99a1e", bg:"creme", motif:true};
+var PRESETS = [
+  {id:"fildor",name:"Fil d'Or",main:"#1f2a5c",accent:"#d99a1e"},
+  {id:"emeraude",name:"Émeraude",main:"#0f5c4a",accent:"#e0a526"},
+  {id:"bordeaux",name:"Bordeaux",main:"#6b1d2e",accent:"#d9a441"},
+  {id:"ardoise",name:"Ardoise",main:"#2b3440",accent:"#e07a3f"},
+  {id:"ocean",name:"Océan",main:"#0b4f6c",accent:"#f2a65a"},
+  {id:"terre",name:"Terre",main:"#5a3a22",accent:"#c8892b"}
+];
+var BGS = {
+  creme:{name:"Crème",cream:"#f6efe2",paper:"#fffdf8",line:"#e2d6bf",ink:"#231f1a",muted:"#6f6556"},
+  perle:{name:"Perle",cream:"#eceff3",paper:"#ffffff",line:"#d5dbe3",ink:"#1d232b",muted:"#5f6a77"},
+  sable:{name:"Sable",cream:"#efe2c8",paper:"#fbf4e4",line:"#dcc9a3",ink:"#2a2218",muted:"#74644a"}
+};
+function hexToRgb(h){ var m = /^#?([0-9a-f]{6})$/i.exec(String(h||"").trim()); if(!m) return null; var n = parseInt(m[1],16); return [(n>>16)&255,(n>>8)&255,n&255]; }
+function rgbToHex(r){ return "#"+r.map(function(v){ v = Math.max(0,Math.min(255,Math.round(v))); return (v<16?"0":"")+v.toString(16); }).join(""); }
+function mixHex(a,b,t){ var A = hexToRgb(a), B = hexToRgb(b); if(!A||!B) return a; return rgbToHex([0,1,2].map(function(i){ return A[i]+(B[i]-A[i])*t; })); }
+function lum(hex){ var c = hexToRgb(hex); if(!c) return 0; var l = c.map(function(v){ v/=255; return v<=0.03928 ? v/12.92 : Math.pow((v+0.055)/1.055,2.4); }); return 0.2126*l[0]+0.7152*l[1]+0.0722*l[2]; }
+function contrast(a,b){ var x = lum(a), y = lum(b); return (Math.max(x,y)+0.05)/(Math.min(x,y)+0.05); }
+function darkEnough(hex){ var c = hex, i = 0; while(contrast(c,"#ffffff") < 4.5 && i < 25){ c = mixHex(c,"#000000",0.12); i++; } return c; }
+function readableOn(hex){ return contrast(hex,"#ffffff") >= contrast(hex,"#1a1a1a") ? "#ffffff" : "#1a1a1a"; }
+function buildTheme(t){
+  t = t || {};
+  var main = darkEnough(hexToRgb(t.main) ? t.main : DEFAULT_THEME.main);
+  var acc = hexToRgb(t.accent) ? t.accent : DEFAULT_THEME.accent;
+  var bg = BGS[t.bg] || BGS.creme;
+  return {"--indigo":main, "--indigo-2":mixHex(main,"#ffffff",0.22), "--ochre":acc, "--ochre-soft":mixHex(acc,"#ffffff",0.55),
+    "--on-accent":readableOn(acc), "--tint":hexToRgb(main).join(","), "--cream":bg.cream, "--paper":bg.paper, "--line":bg.line, "--ink":bg.ink, "--muted":bg.muted};
+}
+function daysLate(o, today){
+  if(!isLate(o,today)) return 0;
+  var a = o.due.split("-"), b = today.split("-");
+  return Math.round((Date.UTC(+b[0],+b[1]-1,+b[2]) - Date.UTC(+a[0],+a[1]-1,+a[2]))/86400000);
+}
+/* ===== END-PURE ===== */
+
+var LOGO = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Fil d\'Or"><circle cx="32" cy="32" r="31" fill="#1f2a5c"/><circle cx="32" cy="32" r="27" fill="none" stroke="#f1d9a0" stroke-width="3" stroke-dasharray="1 3.71"/><circle cx="32" cy="32" r="22" fill="none" stroke="#d99a1e" stroke-width="1" stroke-dasharray="2 2.2"/><path d="M19 47 L42 18" stroke="#f6c453" stroke-width="2.6" stroke-linecap="round" fill="none"/><ellipse cx="41" cy="19.6" rx="1.3" ry="3.3" transform="rotate(38 41 19.6)" fill="#1f2a5c" stroke="#f6c453" stroke-width="1.1"/><path d="M41.6 19 C 54 17, 55 33, 44 36 C 33 39, 31 49, 43 50" fill="none" stroke="#ffd978" stroke-width="1.8" stroke-linecap="round"/></svg>';
+var HANGER = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 9V7.5a2.2 2.2 0 1 0-2.2-2.2"/><path d="M12 9L2.8 17a1.4 1.4 0 0 0 .9 2.5h16.600a1.4 1.4 0 0 0 .9-2.500z"/></svg>';
+var PERSON = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="8" r="3.6"/><path d="M4.500 20c.8-4 3.500-6 7.500-6s6.700 2 7.500 6"/></svg>';
+var SLOTS = [["front","Devant"],["back","Dos"],["left","Côté gauche"],["right","Côté droit"]];
+
+var APP_VERSION = "1.0.0";
+var KEY = "atelier_couture_v1";
+var DEFAULT_FIELDS = ["Poitrine","Taille","Hanches","Épaules","Longueur manche","Tour de bras","Longueur haut/robe","Longueur pantalon","Cou"];
+var state = {
+  settings:{cc:"243", cur:"XOF", fields:DEFAULT_FIELDS.slice(), theme:Object.assign({}, DEFAULT_THEME)},
+  profile:{name:"", title:"", shop:"", phone:"", address:"", photo:""},
+  clients:[], orders:[]
+};
+var ui = { tab:"orders", filter:"Tous", q:"" };
+var thumbs = {};   /* id -> miniature (dataURL), gardée en mémoire */
+
+function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){ toast("Stockage du navigateur indisponible : exportez vos données."); } }
+function load(){
+  try{
+    var raw = localStorage.getItem(KEY); if(!raw) return;
+    var d = JSON.parse(raw);
+    if(d && Array.isArray(d.clients) && Array.isArray(d.orders)){
+      state.clients = d.clients; state.orders = d.orders;
+      if(d.settings) state.settings = Object.assign(state.settings, d.settings);
+      if(d.profile) state.profile = Object.assign(state.profile, d.profile);
+      state.settings.theme = Object.assign({}, DEFAULT_THEME, state.settings.theme || {});
+      if(d.settings && d.settings.shop && !state.profile.shop) state.profile.shop = d.settings.shop; /* ancienne version */
+      if(!Array.isArray(state.settings.fields) || !state.settings.fields.length) state.settings.fields = DEFAULT_FIELDS.slice();
+    }
+  }catch(e){}
+}
+function clientOf(id){ return state.clients.find(function(c){ return c.id === id; }); }
+
+/* ---------- Stockage des photos (IndexedDB) ---------- */
+var dbp = null;
+function idb(){
+  if(dbp) return dbp;
+  dbp = new Promise(function(res){
+    try{
+      var r = indexedDB.open("fildor_img", 1);
+      r.onupgradeneeded = function(){ r.result.createObjectStore("img"); };
+      r.onsuccess = function(){ res(r.result); };
+      r.onerror = function(){ res(null); };
+      r.onblocked = function(){ res(null); };
+    }catch(e){ res(null); }
+  });
+  return dbp;
+}
+function idbRun(mode, fn){
+  return idb().then(function(db){
+    if(!db) return undefined;
+    return new Promise(function(res){
+      try{
+        var tx = db.transaction("img", mode), st = tx.objectStore("img"), out;
+        out = fn(st);
+        tx.oncomplete = function(){ res(out && out.result !== undefined ? out.result : undefined); };
+        tx.onerror = tx.onabort = function(){ res(undefined); };
+      }catch(e){ res(undefined); }
+    });
+  });
+}
+function idbPut(k, v){ return idbRun("readwrite", function(s){ return s.put(v, k); }); }
+function idbGet(k){ return idbRun("readonly", function(s){ return s.get(k); }); }
+function idbDel(k){ return idbRun("readwrite", function(s){ return s.delete(k); }); }
+function idbEntries(){
+  return idb().then(function(db){
+    if(!db) return [];
+    return new Promise(function(res){
+      var out = [];
+      try{
+        var c = db.transaction("img","readonly").objectStore("img").openCursor();
+        c.onsuccess = function(){ var cur = c.result; if(cur){ out.push([cur.key, cur.value]); cur.continue(); } else res(out); };
+        c.onerror = function(){ res(out); };
+      }catch(e){ res(out); }
+    });
+  });
+}
+
+function processImage(file, maxSide, quality, square){
+  return new Promise(function(res, rej){
+    var url = URL.createObjectURL(file), img = new Image();
+    img.onload = function(){
+      var w = img.naturalWidth, hgt = img.naturalHeight, sx = 0, sy = 0, sw = w, sh = hgt;
+      if(square){ var s = Math.min(w,hgt); sx = (w-s)/2; sy = (hgt-s)/2; sw = s; sh = s; }
+      var scale = Math.min(1, maxSide / Math.max(sw, sh));
+      var cw = Math.max(1, Math.round(sw*scale)), ch = Math.max(1, Math.round(sh*scale));
+      var c = document.createElement("canvas"); c.width = cw; c.height = ch;
+      var ctx = c.getContext("2d"); ctx.fillStyle = "#fff"; ctx.fillRect(0,0,cw,ch);
+      ctx.drawImage(img, sx, sy, sw, sh, 0, 0, cw, ch);
+      URL.revokeObjectURL(url);
+      res(c.toDataURL("image/jpeg", quality));
+    };
+    img.onerror = function(){ URL.revokeObjectURL(url); rej(new Error("image")); };
+    img.src = url;
+  });
+}
+function addModelPhoto(file){
+  var id = "m_" + uid();
+  return Promise.all([processImage(file,1000,0.75,false), processImage(file,360,0.7,false)]).then(function(r){
+    return Promise.all([idbPut(id, r[0]), idbPut(id+":t", r[1])]).then(function(){ thumbs[id] = r[1]; return id; });
+  });
+}
+function addAvatar(file){
+  var id = "av_" + uid();
+  return processImage(file,240,0.8,true).then(function(d){ return idbPut(id, d).then(function(){ thumbs[id] = d; return id; }); });
+}
+function removePhoto(id){ if(!id) return; delete thumbs[id]; idbDel(id); idbDel(id+":t"); }
+
+function initPhotos(){
+  var guard = new Promise(function(res){ setTimeout(res, 1500); });
+  var work = idbEntries().then(function(list){
+    var keep = {};
+    photoIds(state.orders, state.profile).forEach(function(i){ keep[i] = true; });
+    list.forEach(function(e){
+      var key = e[0], base = key.replace(/:t$/,"");
+      if(!keep[base]){ idbDel(key); return; }          /* nettoie les photos orphelines */
+      if(/:t$/.test(key) || key.indexOf("av_") === 0) thumbs[base] = e[1];
+    });
+  });
+  return Promise.race([work, guard]);
+}
+
+/* ---------- aides DOM ---------- */
+function h(tag, props){
+  var e = document.createElement(tag), after = {};
+  var p = props || {};
+  Object.keys(p).forEach(function(k){
+    var v = p[k];
+    if(k === "class") e.className = v;
+    else if(k === "text") e.textContent = v;
+    else if(k === "value") after.value = v;
+    else if(k.slice(0,2) === "on") e.addEventListener(k.slice(2), v);
+    else if(v !== false && v != null) e.setAttribute(k, v === true ? "" : v);
+  });
+  for(var i=2;i<arguments.length;i++){
+    var kids = [].concat(arguments[i]);
+    kids.forEach(function(c){
+      if(c == null || c === false) return;
+      e.appendChild(typeof c === "string" ? document.createTextNode(c) : c);
+    });
+  }
+  if("value" in after) e.value = after.value;
+  return e;
+}
+function svgNode(str){
+  var d = new DOMParser().parseFromString(str, "image/svg+xml");
+  return document.importNode(d.documentElement, true);
+}
+var toastTimer;
+function toast(msg){
+  var t = document.querySelector(".toast"); if(t) t.remove();
+  t = h("div",{class:"toast",text:msg}); document.body.appendChild(t);
+  clearTimeout(toastTimer); toastTimer = setTimeout(function(){ t.remove(); }, 2800);
+}
+function modal(title, content){
+  var ov = h("div",{class:"overlay"});
+  function close(){ ov.remove(); document.removeEventListener("keydown", esc); }
+  function esc(e){ if(e.key === "Escape") close(); }
+  document.addEventListener("keydown", esc);
+  ov.addEventListener("click", function(e){ if(e.target === ov) close(); });
+  var inner = h("div",{class:"sheet-in"}, h("h2",{text:title}), content);
+  var sheet = h("div",{class:"sheet"}, h("button",{class:"x",type:"button","aria-label":"Fermer",text:"×",onclick:close}), inner);
+  ov.appendChild(sheet); document.body.appendChild(ov);
+  return close;
+}
+function cm(n){ return money(n, state.settings.cur); }
+function sig(){
+  var p = state.profile, bits = [];
+  if(p.name) bits.push(p.name);
+  if(p.shop) bits.push(p.shop);
+  return bits.length ? "\n— " + bits.join(", ") : "";
+}
+
+/* ---------- Photos : grille Devant / Dos / Côtés ---------- */
+function lightbox(id, label){
+  var box = h("div",{class:"lightbox",onclick:function(){ box.remove(); }});
+  var img = h("img",{src:thumbs[id] || "",alt:label});
+  box.appendChild(img); box.appendChild(h("span",{text:label+" (touchez pour fermer)"}));
+  document.body.appendChild(box);
+  idbGet(id).then(function(full){ if(full && document.body.contains(box)) img.src = full; });
+}
+function photoGrid(photos, onChange){
+  var grid = h("div",{class:"pgrid"});
+  function draw(){
+    grid.innerHTML = "";
+    SLOTS.forEach(function(s){
+      var key = s[0], label = s[1], id = photos[key];
+      var tile = h("div",{class:"ptile"+(id ? " has" : "")});
+      var file = h("input",{type:"file",accept:"image/*",style:"display:none"});
+      file.addEventListener("change", function(){
+        var f = file.files && file.files[0]; if(!f) return;
+        tile.classList.add("busy");
+        addModelPhoto(f).then(function(nid){
+          if(photos[key]) removePhoto(photos[key]);
+          photos[key] = nid; onChange(); draw();
+        }).catch(function(){ toast("Photo illisible, essayez-en une autre."); draw(); });
+      });
+      if(id && thumbs[id]){
+        tile.appendChild(h("img",{src:thumbs[id],alt:label,onclick:function(){ lightbox(id, label); }}));
+        tile.appendChild(h("button",{class:"pbtn rm",type:"button","aria-label":"Retirer la photo",text:"×",onclick:function(e){ e.stopPropagation(); removePhoto(id); delete photos[key]; onChange(); draw(); }}));
+        tile.appendChild(h("button",{class:"pbtn rp",type:"button","aria-label":"Remplacer la photo",text:"↻",onclick:function(e){ e.stopPropagation(); file.click(); }}));
+      } else {
+        tile.appendChild(svgNode(HANGER));
+        tile.addEventListener("click", function(){ file.click(); });
+      }
+      tile.appendChild(h("span",{class:"plab",text:label}));
+      tile.appendChild(file);
+      grid.appendChild(tile);
+    });
+  }
+  draw();
+  return grid;
+}
+function firstPhoto(o){
+  var p = o.photos || {};
+  for(var i=0;i<SLOTS.length;i++){ var id = p[SLOTS[i][0]]; if(id && thumbs[id]) return thumbs[id]; }
+  return "";
+}
+
+/* ---------- En-tête et profil ---------- */
+function avatarNode(){
+  var p = state.profile, a = h("span",{class:"av"});
+  if(p.photo && thumbs[p.photo]) a.appendChild(h("img",{src:thumbs[p.photo],alt:""}));
+  else if(initials(p.name)) a.textContent = initials(p.name);
+  else a.appendChild(svgNode(PERSON));
+  return a;
+}
+function renderHeader(){
+  var p = state.profile;
+  document.getElementById("shopTitle").textContent = p.shop || "Fil d'Or";
+  document.getElementById("subTitle").textContent = p.title || (p.shop ? "Atelier de couture" : "Atelier de couture");
+  var me = document.getElementById("me"); me.innerHTML = "";
+  me.appendChild(avatarNode());
+  me.appendChild(h("span",{class:"nm",text:p.name || "Mon profil"}));
+}
+function openProfile(){
+  var p = state.profile;
+  var name = h("input",{value:p.name,placeholder:"Ex. : Adama Kouassi"});
+  var title = h("input",{value:p.title,placeholder:"Ex. : Maître couturier"});
+  var shop = h("input",{value:p.shop,placeholder:"Nom de l'atelier"});
+  var phone = h("input",{value:p.phone,placeholder:"Téléphone",inputmode:"tel"});
+  var addr = h("input",{value:p.address,placeholder:"Quartier, ville"});
+  var holder = h("div",{class:"pro"});
+  var file = h("input",{type:"file",accept:"image/*",style:"display:none"});
+  var photoBtn = h("button",{type:"button",text:p.photo ? "Changer la photo" : "Ajouter ma photo",onclick:function(){ file.click(); }});
+  function drawPro(){
+    photoBtn.textContent = p.photo ? "Changer la photo" : "Ajouter ma photo";
+    holder.innerHTML = "";
+    holder.appendChild(avatarNode());
+    holder.appendChild(h("div",{class:"who",text:name.value.trim() || "Votre nom"}));
+    holder.appendChild(h("div",{class:"sub",text:[title.value.trim(), shop.value.trim()].filter(Boolean).join(" · ") || "Votre titre et votre atelier"}));
+  }
+  [name,title,shop].forEach(function(i){ i.addEventListener("input", drawPro); });
+  file.addEventListener("change", function(){
+    var f = file.files && file.files[0]; if(!f) return;
+    addAvatar(f).then(function(id){
+      if(p.photo) removePhoto(p.photo);
+      p.photo = id; save(); renderHeader(); drawPro();
+    }).catch(function(){ toast("Photo illisible."); });
+  });
+  drawPro();
+  var body = h("div",{},
+    holder,
+    h("div",{class:"row",style:"justify-content:center;margin-top:4px"},
+      photoBtn,
+      h("button",{type:"button",text:"Retirer la photo",onclick:function(){ if(!p.photo) return; removePhoto(p.photo); p.photo = ""; save(); renderHeader(); drawPro(); }}),
+      file),
+    h("label",{text:"Nom complet"}), name,
+    h("label",{text:"Titre"}), title,
+    h("label",{text:"Atelier"}), shop,
+    h("label",{text:"Téléphone"}), phone,
+    h("label",{text:"Adresse"}), addr,
+    h("p",{class:"note",text:"Ces informations apparaissent sur vos reçus et dans vos messages WhatsApp aux clients."}),
+    h("div",{class:"row"}, h("button",{class:"primary",type:"button",text:"Enregistrer",onclick:function(){
+      p.name = name.value.trim(); p.title = title.value.trim(); p.shop = shop.value.trim();
+      p.phone = phone.value.trim(); p.address = addr.value.trim();
+      save(); close(); render(); toast("Profil enregistré.");
+    }}))
+  );
+  var close = modal("Mon profil", body);
+}
+
+/* ---------- Application installable (PWA) ---------- */
+var deferredInstall = null, swState = "none", updating = false;
+function isStandalone(){ return (window.matchMedia && matchMedia("(display-mode: standalone)").matches) || navigator.standalone === true; }
+function isIOS(){ return /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1); }
+window.addEventListener("beforeinstallprompt", function(e){ e.preventDefault(); deferredInstall = e; if(ui.tab === "settings") render(); });
+window.addEventListener("appinstalled", function(){ deferredInstall = null; toast("Application installée."); if(ui.tab === "settings") render(); });
+function showUpdate(worker){
+  if(document.querySelector(".updatebar")) return;
+  var bar = h("div",{class:"updatebar",role:"status"},
+    h("span",{text:"Une nouvelle version est disponible."}),
+    h("div",{class:"btns"},
+      h("button",{type:"button",class:"later",text:"Plus tard",onclick:function(){ bar.remove(); }}),
+      h("button",{type:"button",text:"Mettre à jour",onclick:function(){ updating = true; worker.postMessage({type:"SKIP_WAITING"}); }})));
+  document.body.appendChild(bar);
+}
+function registerSW(){
+  if(!("serviceWorker" in navigator) || !/^https?:$/.test(location.protocol)){ swState = "unsupported"; return; }
+  navigator.serviceWorker.addEventListener("controllerchange", function(){
+    swState = "ready";
+    if(updating){ updating = false; location.reload(); }       /* on ne recharge que si l'utilisateur a demandé la mise à jour */
+    else if(ui.tab === "settings") render();
+  });
+  navigator.serviceWorker.register("sw.js").then(function(reg){
+    swState = navigator.serviceWorker.controller ? "ready" : "installing";
+    if(reg.waiting && navigator.serviceWorker.controller) showUpdate(reg.waiting);
+    reg.addEventListener("updatefound", function(){
+      var w = reg.installing; if(!w) return;
+      w.addEventListener("statechange", function(){
+        if(w.state === "installed" && navigator.serviceWorker.controller) showUpdate(w);
+        if(w.state === "activated"){ swState = "ready"; if(ui.tab === "settings") render(); }
+      });
+    });
+    navigator.serviceWorker.ready.then(function(){ swState = "ready"; if(ui.tab === "settings") render(); });
+  }).catch(function(){ swState = "unsupported"; });
+  if(navigator.storage && navigator.storage.persist){ try{ navigator.storage.persist(); }catch(e){} }  /* demande de garder les photos et données durablement */
+}
+function appSection(){
+  var wrap = h("div",{});
+  wrap.appendChild(h("div",{class:"sec",text:"Application"}));
+  var off = h("p",{class:"note",style:"margin-top:0"});
+  if(swState === "ready") off.appendChild(h("span",{class:"pwa-ok",text:"✓ Fonctionne sans connexion."}));
+  else if(swState === "installing") off.textContent = "Préparation du mode sans connexion… (gardez Internet quelques secondes, puis rouvrez l'appli).";
+  else off.textContent = "Mode sans connexion indisponible ici : il faut ouvrir l'appli depuis son adresse en ligne (https).";
+  wrap.appendChild(off);
+  var row = h("div",{class:"row",style:"margin-top:6px"});
+  if(isStandalone()){
+    row.appendChild(h("span",{class:"pwa-ok",text:"✓ Application installée sur cet appareil."}));
+  } else if(deferredInstall){
+    row.appendChild(h("button",{class:"primary",type:"button",text:"Installer l'application",onclick:function(){
+      var e = deferredInstall; deferredInstall = null;
+      e.prompt(); e.userChoice.then(function(){ render(); });
+    }}));
+  } else {
+    wrap.appendChild(h("p",{class:"note",text: isIOS()
+      ? "Pour installer sur iPhone : ouvrez cette page dans Safari, touchez le bouton Partager, puis « Sur l'écran d'accueil »."
+      : "Pour installer : ouvrez le menu du navigateur (⋮) puis « Installer l'application » ou « Ajouter à l'écran d'accueil »."}));
+  }
+  wrap.appendChild(row);
+  var stor = h("p",{class:"note",text:"Version "+APP_VERSION});
+  wrap.appendChild(stor);
+  if(navigator.storage && navigator.storage.estimate){
+    navigator.storage.estimate().then(function(e){
+      if(!e || !e.usage) return;
+      var mo = e.usage/1048576;
+      var p = h("span",{text:" · Espace utilisé sur l'appareil : "+(mo < 10 ? mo.toFixed(1) : Math.round(mo))+" Mo"});
+      stor.appendChild(p);
+      if(navigator.storage.persisted) navigator.storage.persisted().then(function(ok){ if(ok) p.textContent += " · stockage protégé"; });
+    }).catch(function(){});
+  }
+  return wrap;
+}
+
+/* ---------- Étiquette de statut ---------- */
+function statusTag(status){ return h("span",{class:"tag","data-s":status}, h("i",{class:"dot"}), status); }
+
+/* ---------- Thème ---------- */
+function applyTheme(){
+  var v = buildTheme(state.settings.theme), st = document.documentElement.style;
+  Object.keys(v).forEach(function(k){ st.setProperty(k, v[k]); });
+  document.body.classList.toggle("nomotif", !state.settings.theme.motif);
+  var m = document.querySelector('meta[name="theme-color"]'); if(m) m.setAttribute("content", v["--indigo"]);
+}
+function themeSection(){
+  var t = state.settings.theme;
+  function setTheme(patch, rerender){ Object.assign(t, patch); applyTheme(); save(); if(rerender) render(); }
+  var wrap = h("div",{});
+  wrap.appendChild(h("div",{class:"sec",text:"Thème"}));
+  wrap.appendChild(h("label",{text:"Palettes",style:"margin-top:0"}));
+  var sws = h("div",{class:"sws"});
+  PRESETS.forEach(function(p){
+    var on = t.preset === p.id;
+    sws.appendChild(h("button",{class:"sw"+(on?" on":""),type:"button","aria-pressed":on?"true":"false",onclick:function(){ setTheme({preset:p.id, main:p.main, accent:p.accent}, true); }},
+      h("span",{class:"dots",style:"background:linear-gradient(135deg,"+p.main+" 50%,"+p.accent+" 50%)"}), h("span",{text:p.name})));
+  });
+  wrap.appendChild(sws);
+  var main = h("input",{type:"color",value:t.main,"aria-label":"Couleur principale"});
+  var acc = h("input",{type:"color",value:t.accent,"aria-label":"Couleur d'accent"});
+  main.addEventListener("input", function(){ setTheme({preset:"custom", main:main.value}, false); });
+  main.addEventListener("change", function(){ render(); });
+  acc.addEventListener("input", function(){ setTheme({preset:"custom", accent:acc.value}, false); });
+  acc.addEventListener("change", function(){ render(); });
+  wrap.appendChild(h("div",{class:"grid2"},
+    h("div",{}, h("label",{text:"Couleur principale"}), main),
+    h("div",{}, h("label",{text:"Couleur d'accent"}), acc)));
+  wrap.appendChild(h("p",{class:"note",text:"Si la couleur principale est trop claire, elle est assombrie automatiquement pour que les textes restent lisibles."}));
+  wrap.appendChild(h("label",{text:"Fond"}));
+  var bgs = h("div",{class:"sws"});
+  Object.keys(BGS).forEach(function(k){
+    var b = BGS[k], on = t.bg === k;
+    bgs.appendChild(h("button",{class:"sw"+(on?" on":""),type:"button","aria-pressed":on?"true":"false",onclick:function(){ setTheme({bg:k}, true); }},
+      h("span",{class:"dots",style:"background:linear-gradient(135deg,"+b.cream+" 50%,"+b.paper+" 50%);border:1px solid "+b.line}), h("span",{text:b.name})));
+  });
+  wrap.appendChild(bgs);
+  wrap.appendChild(h("div",{class:"row"},
+    h("button",{type:"button","aria-pressed":t.motif?"true":"false",text:"Motif de fond : "+(t.motif ? "activé" : "désactivé"),onclick:function(){ setTheme({motif:!t.motif}, true); }}),
+    h("button",{type:"button",text:"Rétablir le thème d'origine",onclick:function(){ state.settings.theme = Object.assign({}, DEFAULT_THEME); applyTheme(); save(); render(); toast("Thème d'origine rétabli."); }})
+  ));
+  return wrap;
+}
+
+/* ---------- Vue Commandes ---------- */
+function viewOrders(){
+  var today = todayISO();
+  var s = summarize(state.orders, today);
+  var root = h("div");
+  root.appendChild(h("div",{class:"cards"},
+    h("div",{class:"stat bad"}, h("b",{text:String(s.late)}), h("span",{text:"En retard"})),
+    h("div",{class:"stat warn"}, h("b",{text:String(s.soon)}), h("span",{text:"À livrer (7 j)"}))
+  ));
+  var counts = {"Tous": state.orders.length};
+  STATUSES.forEach(function(st){ counts[st] = state.orders.filter(function(o){ return o.status === st; }).length; });
+  var chips = h("div",{class:"chips"});
+  ["Tous"].concat(STATUSES).forEach(function(f){
+    chips.appendChild(h("button",{class:"chip"+(ui.filter===f?" on":""),"data-f":f,"aria-pressed":ui.filter===f?"true":"false",type:"button",onclick:function(){ ui.filter=f; render(); }},
+      f, h("span",{class:"n",text:String(counts[f])})));
+  });
+  root.appendChild(chips);
+
+  var list = state.orders.filter(function(o){ return ui.filter === "Tous" || o.status === ui.filter; })
+    .sort(function(a,b){ return (a.status==="Livré")-(b.status==="Livré") || (a.due||"9999").localeCompare(b.due||"9999"); });
+
+  if(!state.orders.length){
+    root.appendChild(h("div",{class:"empty"},
+      h("p",{text:"Aucune commande pour l'instant."}),
+      h("button",{class:"primary",type:"button",text:"Essayer avec un exemple",onclick:loadDemo})
+    ));
+  } else if(!list.length){
+    root.appendChild(h("div",{class:"empty",text:"Aucune commande dans cette catégorie."}));
+  } else {
+    var box = h("div",{class:"list"});
+    list.forEach(function(o){
+      var c = clientOf(o.clientId), late = isLate(o, today), th = firstPhoto(o), bal = balanceOf(o);
+      box.appendChild(h("div",{class:"item","data-s":o.status,onclick:function(){ openOrder(o.id); }},
+        th ? h("img",{class:"ithumb",src:th,alt:"Modèle"}) : null,
+        h("div",{class:"ibody"},
+          h("div",{class:"r1"}, h("span",{class:"who",text:c ? c.name : "Client supprimé"}), statusTag(o.status)),
+          h("div",{class:"r2",text:o.desc || "Sans description"}),
+          h("div",{class:"r3"},
+            h("span",{text:"Livraison : "+fdate(o.due)}),
+            late ? h("span",{class:"tag late"}, h("i",{class:"dot"}), "En retard · "+daysLate(o,today)+" j") : null,
+            h("span",{class:"reste"+(bal>0?"":" ok"),text:bal > 0 ? "Reste "+cm(bal) : "Soldé"})
+          )
+        )
+      ));
+    });
+    root.appendChild(box);
+  }
+  return root;
+}
+
+function newOrderModal(preClientId){
+  var sel = h("select",{id:"f_client"},
+    h("option",{value:"__new",text:"+ Nouveau client"}),
+    state.clients.map(function(c){ return h("option",{value:c.id,text:c.name}); })
+  );
+  sel.value = preClientId || (state.clients.length ? state.clients[0].id : "__new");
+  var nName = h("input",{placeholder:"Nom du nouveau client"});
+  var nPhone = h("input",{placeholder:"Téléphone (ex. 0812345678)",inputmode:"tel"});
+  var newBox = h("div",{}, h("label",{text:"Nom du client"}), nName, h("label",{text:"Téléphone"}), nPhone);
+  function sync(){ newBox.style.display = sel.value === "__new" ? "block" : "none"; }
+  sel.addEventListener("change", sync); sync();
+  var desc = h("textarea",{placeholder:"Ex. : Robe pagne, manches longues, doublure"});
+  var price = h("input",{type:"number",min:"0",step:"any",inputmode:"decimal",placeholder:"Prix total"});
+  var dep = h("input",{type:"number",min:"0",step:"any",inputmode:"decimal",placeholder:"Acompte reçu (facultatif)"});
+  var due = h("input",{type:"date",value:addDays(todayISO(),7)});
+  var photos = {}, saved = false;
+  var form = h("div",{},
+    h("label",{text:"Client"}), sel, newBox,
+    h("label",{text:"Description du travail"}), desc,
+    h("label",{text:"Modèle souhaité (photos)"}),
+    photoGrid(photos, function(){}),
+    h("div",{class:"grid2"}, h("div",{}, h("label",{text:"Prix total ("+CUR[state.settings.cur].sym+")"}), price), h("div",{}, h("label",{text:"Acompte"}), dep)),
+    h("label",{text:"Date de livraison"}), due,
+    h("div",{class:"row"}, h("button",{class:"primary",type:"button",text:"Enregistrer",onclick:function(){
+      var cid = sel.value;
+      var p = num(price.value), d = num(dep.value);
+      if(cid === "__new" && !nName.value.trim()){ toast("Entrez le nom du client."); return; }
+      if(p <= 0){ toast("Entrez le prix de la commande."); return; }
+      if(d > p){ toast("L'acompte dépasse le prix."); return; }
+      if(cid === "__new"){
+        var c = {id:uid(), name:nName.value.trim(), phone:nPhone.value.trim(), m:{}, notes:""};
+        state.clients.push(c); cid = c.id;
+      }
+      var o = {id:uid(), clientId:cid, desc:desc.value.trim(), price:p, due:due.value, status:"En attente", created:todayISO(), payments:[], photos:photos};
+      if(d > 0) o.payments.push({date:todayISO(), amount:d});
+      state.orders.push(o); saved = true; save(); close(); render(); toast("Commande enregistrée.");
+    }}))
+  );
+  var closeRaw = modal("Nouvelle commande", form);
+  function close(){ closeRaw(); }
+  /* si la fenêtre est fermée sans enregistrer, on libère les photos ajoutées */
+  var watcher = setInterval(function(){
+    if(!document.body.contains(form)){ clearInterval(watcher); if(!saved) Object.keys(photos).forEach(function(k){ removePhoto(photos[k]); }); }
+  }, 600);
+}
+
+function openOrder(id){
+  var o = state.orders.find(function(x){ return x.id === id; }); if(!o) return;
+  if(!o.photos) o.photos = {};
+  var c = clientOf(o.clientId);
+  var body = h("div");
+  var closeFn;
+  function refresh(){ if(closeFn) closeFn(); openOrder(id); render(); }
+
+  var statusSel = h("select",{}, STATUSES.map(function(s){ return h("option",{value:s,text:s}); }));
+  statusSel.value = o.status;
+  statusSel.addEventListener("change", function(){ o.status = statusSel.value; save(); refresh(); });
+
+  body.appendChild(h("div",{class:"kv"}, h("span",{text:"Client"}), h("b",{text:c ? c.name : "—"})));
+  body.appendChild(h("div",{class:"kv"}, h("span",{text:"Travail"}), h("span",{text:o.desc || "—"})));
+  body.appendChild(h("div",{class:"kv"}, h("span",{text:"Livraison"}), h("span",{text:fdate(o.due)})));
+  body.appendChild(h("div",{class:"kv"}, h("span",{text:"Prix"}), h("span",{text:cm(o.price)})));
+  body.appendChild(h("div",{class:"kv"}, h("span",{text:"Déjà payé"}), h("span",{text:cm(paidOf(o))})));
+  body.appendChild(h("div",{class:"kv"}, h("b",{text:"Reste à payer"}), h("b",{text:cm(balanceOf(o))})));
+
+  body.appendChild(h("div",{class:"sec",text:"Modèle souhaité"}));
+  body.appendChild(photoGrid(o.photos, function(){ save(); render(); }));
+  body.appendChild(h("p",{class:"note",text:"Touchez une case pour ajouter une photo (appareil photo ou galerie). Touchez une photo pour l'agrandir."}));
+
+  body.appendChild(h("div",{class:"sec",text:"Suivi"}));
+  body.appendChild(h("label",{text:"Statut",style:"margin-top:0"})); body.appendChild(statusSel);
+
+  var amt = h("input",{type:"number",min:"0",step:"any",inputmode:"decimal",placeholder:"Montant reçu"});
+  body.appendChild(h("label",{text:"Enregistrer un paiement"}));
+  body.appendChild(h("div",{class:"row",style:"margin-top:0"}, h("div",{style:"flex:1;min-width:140px"}, amt), h("button",{class:"primary",type:"button",text:"Ajouter",onclick:function(){
+    var a = num(amt.value);
+    if(a <= 0){ toast("Entrez un montant."); return; }
+    if(a > balanceOf(o)){ toast("Le montant dépasse le reste à payer."); return; }
+    o.payments.push({date:todayISO(), amount:a}); save(); refresh();
+  }})));
+  if(o.payments.length){
+    body.appendChild(h("div",{class:"note"}, "Paiements : " + o.payments.map(function(p){ return fdate(p.date)+" "+cm(num(p.amount)); }).join(" · ")));
+  }
+
+  var shop = state.profile.shop || "l'atelier";
+  var row = h("div",{class:"row"});
+  if(c && c.phone){
+    var readyMsg = "Bonjour "+c.name+", votre commande ("+(o.desc||"couture")+") est prête. Vous pouvez passer la récupérer à "+shop+(balanceOf(o)>0 ? ". Reste à payer : "+cm(balanceOf(o))+"." : ".")+" Merci !"+sig();
+    var payMsg = "Bonjour "+c.name+", petit rappel : il reste "+cm(balanceOf(o))+" à régler pour votre commande ("+(o.desc||"couture")+"), livraison prévue le "+fdate(o.due)+". Merci !"+sig();
+    row.appendChild(h("a",{class:"btn wa",target:"_blank",rel:"noopener",href:waLink(c.phone, readyMsg, state.settings.cc),text:"WhatsApp : commande prête"}));
+    if(balanceOf(o) > 0) row.appendChild(h("a",{class:"btn wa",target:"_blank",rel:"noopener",href:waLink(c.phone, payMsg, state.settings.cc),text:"WhatsApp : rappel de paiement"}));
+  } else {
+    row.appendChild(h("div",{class:"note",text:"Ajoutez le téléphone du client pour envoyer des messages WhatsApp."}));
+  }
+  row.appendChild(h("button",{type:"button",text:"Imprimer la fiche / le reçu",onclick:function(){ printReceipt(o); }}));
+  row.appendChild(h("button",{class:"danger",type:"button",text:"Supprimer",onclick:function(){
+    if(confirm("Supprimer cette commande ?")){
+      Object.keys(o.photos).forEach(function(k){ removePhoto(o.photos[k]); });
+      state.orders = state.orders.filter(function(x){ return x.id !== id; }); save(); closeFn(); render();
+    }
+  }}));
+  body.appendChild(row);
+  closeFn = modal("Commande", body);
+}
+
+function printReceipt(o){
+  var c = clientOf(o.clientId), p = state.profile, r = document.getElementById("receipt");
+  r.innerHTML = "";
+  var contact = [p.name && (p.name + (p.title ? " — " + p.title : "")), p.phone, p.address].filter(Boolean);
+  r.appendChild(h("div",{class:"rh"},
+    svgNode(LOGO),
+    h("div",{}, h("h2",{text:p.shop || "Atelier de couture"}), contact.map(function(t){ return h("div",{text:t}); }))
+  ));
+  r.appendChild(h("div",{text:"Fiche et reçu du "+fdate(todayISO())}));
+  r.appendChild(h("div",{class:"kv"}, h("span",{text:"Client"}), h("span",{text:c ? c.name : ""})));
+  r.appendChild(h("div",{class:"kv"}, h("span",{text:"Travail"}), h("span",{text:o.desc || ""})));
+  r.appendChild(h("div",{class:"kv"}, h("span",{text:"Livraison prévue"}), h("span",{text:fdate(o.due)})));
+  r.appendChild(h("div",{class:"kv"}, h("span",{text:"Prix total"}), h("span",{text:cm(o.price)})));
+  (o.payments||[]).forEach(function(pm){ r.appendChild(h("div",{class:"kv"}, h("span",{text:"Paiement du "+fdate(pm.date)}), h("span",{text:cm(num(pm.amount))}))); });
+  r.appendChild(h("div",{class:"kv"}, h("b",{text:"Reste à payer"}), h("b",{text:cm(balanceOf(o))})));
+  var ph = o.photos || {}, has = SLOTS.some(function(s){ return ph[s[0]] && thumbs[ph[s[0]]]; });
+  if(has){
+    var grid = h("div",{class:"rp"});
+    SLOTS.forEach(function(s){ var id = ph[s[0]]; if(id && thumbs[id]) grid.appendChild(h("div",{}, h("img",{src:thumbs[id],alt:s[1]}), s[1])); });
+    r.appendChild(h("div",{style:"margin-top:12px;font-weight:700",text:"Modèle souhaité"}));
+    r.appendChild(grid);
+  }
+  var m = c && c.m ? Object.keys(c.m) : [];
+  if(m.length){
+    r.appendChild(h("div",{style:"margin-top:8px;font-weight:700",text:"Mesures (cm)"}));
+    r.appendChild(h("div",{text:m.map(function(k){ return k+" : "+c.m[k]; }).join(" · ")}));
+  }
+  r.appendChild(h("p",{text:"Merci de votre confiance."}));
+  window.print();
+}
+
+/* ---------- Vue Clients ---------- */
+function viewClients(){
+  var root = h("div");
+  var q = h("input",{placeholder:"Rechercher un client",value:ui.q});
+  q.addEventListener("input", function(){ ui.q = q.value; renderList(); });
+  root.appendChild(q);
+  root.appendChild(h("div",{class:"row"}, h("button",{class:"primary",type:"button",text:"+ Nouveau client",onclick:function(){ clientModal(null); }})));
+  var box = h("div",{class:"list",style:"margin-top:12px"});
+  root.appendChild(box);
+  function renderList(){
+    box.innerHTML = "";
+    var term = ui.q.trim().toLowerCase();
+    var cs = state.clients.filter(function(c){ return !term || c.name.toLowerCase().indexOf(term) >= 0 || (c.phone||"").indexOf(term) >= 0; })
+      .sort(function(a,b){ return a.name.localeCompare(b.name,"fr"); });
+    if(!cs.length){ box.appendChild(h("div",{class:"empty",text: state.clients.length ? "Aucun résultat." : "Aucun client enregistré."})); return; }
+    cs.forEach(function(c){
+      var n = state.orders.filter(function(o){ return o.clientId === c.id; }).length;
+      box.appendChild(h("div",{class:"item",onclick:function(){ clientModal(c.id); }},
+        h("div",{class:"ibody"},
+          h("div",{class:"r1"}, h("span",{class:"who",text:c.name}), h("span",{class:"tag neutral",text:n+" commande"+(n>1?"s":"")})),
+          h("div",{class:"r2",text:c.phone || "Pas de téléphone"})
+        )
+      ));
+    });
+  }
+  renderList();
+  return root;
+}
+
+function clientModal(id){
+  var c = id ? clientOf(id) : {id:uid(), name:"", phone:"", m:{}, notes:""};
+  var isNew = !id;
+  var name = h("input",{value:c.name,placeholder:"Nom"});
+  var phone = h("input",{value:c.phone,placeholder:"Téléphone",inputmode:"tel"});
+  var fields = state.settings.fields.slice();
+  Object.keys(c.m||{}).forEach(function(k){ if(fields.indexOf(k) < 0) fields.push(k); });
+  var mInputs = {};
+  var mGrid = h("div",{class:"grid2"});
+  fields.forEach(function(f){
+    var inp = h("input",{type:"number",min:"0",step:"any",inputmode:"decimal",value:(c.m && c.m[f]) || "",placeholder:"cm"});
+    mInputs[f] = inp;
+    mGrid.appendChild(h("div",{}, h("label",{text:f}), inp));
+  });
+  var notes = h("textarea",{placeholder:"Préférences, remarques"}); notes.value = c.notes || "";
+  var body = h("div",{}, h("label",{text:"Nom"}), name, h("label",{text:"Téléphone"}), phone,
+    h("div",{class:"sec",text:"Mesures (cm)"}), mGrid, h("label",{text:"Notes"}), notes);
+  var row = h("div",{class:"row"});
+  row.appendChild(h("button",{class:"primary",type:"button",text:"Enregistrer",onclick:function(){
+    if(!name.value.trim()){ toast("Entrez le nom."); return; }
+    c.name = name.value.trim(); c.phone = phone.value.trim(); c.notes = notes.value.trim();
+    c.m = {}; Object.keys(mInputs).forEach(function(k){ if(mInputs[k].value !== "") c.m[k] = mInputs[k].value; });
+    if(isNew) state.clients.push(c);
+    save(); close(); render(); toast("Client enregistré.");
+  }}));
+  if(!isNew){
+    row.appendChild(h("button",{type:"button",text:"Nouvelle commande",onclick:function(){ close(); newOrderModal(c.id); }}));
+    if(c.phone) row.appendChild(h("a",{class:"btn wa",target:"_blank",rel:"noopener",href:waLink(c.phone,"Bonjour "+c.name+","+sig(),state.settings.cc),text:"WhatsApp"}));
+    row.appendChild(h("button",{class:"danger",type:"button",text:"Supprimer",onclick:function(){
+      var mine = state.orders.filter(function(o){ return o.clientId === c.id; });
+      if(confirm("Supprimer ce client"+(mine.length ? " et ses "+mine.length+" commande(s)" : "")+" ?")){
+        mine.forEach(function(o){ Object.keys(o.photos||{}).forEach(function(k){ removePhoto(o.photos[k]); }); });
+        state.clients = state.clients.filter(function(x){ return x.id !== c.id; });
+        state.orders = state.orders.filter(function(o){ return o.clientId !== c.id; });
+        save(); close(); render();
+      }
+    }}));
+  }
+  body.appendChild(row);
+  var close = modal(isNew ? "Nouveau client" : c.name, body);
+}
+
+/* ---------- Réglages et sauvegarde ---------- */
+function exportBackup(){
+  var ids = photoIds(state.orders, state.profile);
+  Promise.all(ids.map(function(id){
+    return Promise.all([idbGet(id), idbGet(id+":t")]).then(function(r){ return {id:id, full:r[0], thumb:r[1]}; });
+  })).then(function(list){
+    var images = {};
+    list.forEach(function(x){ if(x.full || x.thumb) images[x.id] = {full:x.full, thumb:x.thumb}; });
+    var blob = new Blob([JSON.stringify({version:2, settings:state.settings, profile:state.profile, clients:state.clients, orders:state.orders, images:images})],{type:"application/json"});
+    var a = document.createElement("a"); a.href = URL.createObjectURL(blob);
+    a.download = "fildor-sauvegarde-"+todayISO()+".json"; document.body.appendChild(a); a.click(); a.remove();
+    toast("Sauvegarde exportée.");
+  });
+}
+function importBackup(d){
+  var imgs = d.images || {}, jobs = [];
+  Object.keys(imgs).forEach(function(id){
+    var x = imgs[id] || {};
+    if(x.full) jobs.push(idbPut(id, x.full));
+    if(x.thumb) jobs.push(idbPut(id+":t", x.thumb));
+    thumbs[id] = x.thumb || x.full;
+  });
+  return Promise.all(jobs).then(function(){
+    state.clients = d.clients; state.orders = d.orders;
+    if(d.settings) state.settings = Object.assign(state.settings, d.settings);
+    if(d.profile) state.profile = Object.assign(state.profile, d.profile);
+    state.settings.theme = Object.assign({}, DEFAULT_THEME, state.settings.theme || {});
+    applyTheme(); save(); render();
+  });
+}
+function viewSettings(){
+  var s = state.settings;
+  var cc = h("input",{value:s.cc,inputmode:"numeric",placeholder:"Indicatif pays (ex. 243)"});
+  var cur = h("select",{},
+    h("option",{value:"XOF",text:"FCFA (XOF)"}), h("option",{value:"XAF",text:"FCFA (XAF)"}),
+    h("option",{value:"CDF",text:"Franc congolais (CDF)"}), h("option",{value:"USD",text:"Dollar (USD)"}), h("option",{value:"EUR",text:"Euro (EUR)"}));
+  cur.value = s.cur;
+  var flds = h("textarea",{}); flds.value = s.fields.join(", ");
+  var file = h("input",{type:"file",accept:"application/json",style:"display:none"});
+  file.addEventListener("change", function(){
+    var f = file.files && file.files[0]; if(!f) return;
+    var r = new FileReader();
+    r.onload = function(){
+      try{
+        var d = JSON.parse(r.result);
+        if(!d || !Array.isArray(d.clients) || !Array.isArray(d.orders)) throw new Error("format");
+        if(confirm("Remplacer toutes les données actuelles par cette sauvegarde ?")){
+          importBackup(d).then(function(){ toast("Sauvegarde restaurée."); });
+        }
+      }catch(e){ toast("Fichier de sauvegarde invalide."); }
+    };
+    r.readAsText(f);
+  });
+  return h("div",{},
+    themeSection(),
+    h("div",{class:"sec",text:"Préférences"}),
+    h("label",{text:"Indicatif téléphonique du pays (pour WhatsApp)",style:"margin-top:0"}), cc,
+    h("label",{text:"Monnaie"}), cur,
+    h("label",{text:"Mesures à enregistrer (séparées par des virgules)"}), flds,
+    h("div",{class:"row"}, h("button",{class:"primary",type:"button",text:"Enregistrer les réglages",onclick:function(){
+      s.cc = cc.value.replace(/\D/g,"") || "243"; s.cur = cur.value;
+      var list = flds.value.split(",").map(function(x){ return x.trim(); }).filter(Boolean);
+      s.fields = list.length ? list : DEFAULT_FIELDS.slice();
+      save(); render(); toast("Réglages enregistrés.");
+    }})),
+    appSection(),
+    h("div",{class:"sec",text:"Sauvegarde"}),
+    h("p",{class:"note",text:"Vos données et vos photos sont gardées sur ce téléphone seulement. Exportez-les régulièrement : si vous effacez les données du navigateur ou changez de téléphone, elles seront perdues."}),
+    h("div",{class:"row"},
+      h("button",{type:"button",text:"Exporter une sauvegarde",onclick:exportBackup}),
+      h("button",{type:"button",text:"Importer une sauvegarde",onclick:function(){ file.click(); }}),
+      file),
+    h("div",{class:"row"},
+      h("button",{type:"button",text:"Charger un exemple",onclick:loadDemo}),
+      h("button",{class:"danger",type:"button",text:"Tout effacer",onclick:function(){
+        if(confirm("Effacer toutes les données et photos de cet appareil ?")){
+          photoIds(state.orders, state.profile).forEach(removePhoto);
+          state.clients = []; state.orders = []; state.profile.photo = ""; save(); render();
+        }
+      }}))
+  );
+}
+
+function loadDemo(){
+  var t = todayISO();
+  var c1 = {id:uid(),name:"Aminata Diallo",phone:"0812345678",m:{"Poitrine":"92","Taille":"74","Hanches":"98","Longueur haut/robe":"110"},notes:"Aime les manches bouffantes"};
+  var c2 = {id:uid(),name:"Jean Mbuyi",phone:"0998765432",m:{"Épaules":"46","Cou":"39","Longueur pantalon":"104"},notes:""};
+  state.clients.push(c1, c2);
+  state.orders.push(
+    {id:uid(),clientId:c1.id,desc:"Robe pagne, manches longues",price:45000,due:addDays(t,3),status:"En cours",created:t,payments:[{date:t,amount:20000}],photos:{}},
+    {id:uid(),clientId:c2.id,desc:"Costume 2 pièces",price:80000,due:addDays(t,-2),status:"En attente",created:t,payments:[{date:t,amount:30000}],photos:{}},
+    {id:uid(),clientId:c1.id,desc:"Chemise wax",price:15000,due:addDays(t,10),status:"Prêt",created:t,payments:[{date:t,amount:15000}],photos:{}}
+  );
+  save(); ui.tab = "orders"; render(); toast("Exemple chargé.");
+}
+
+/* ---------- Rendu général ---------- */
+function render(){
+  renderHeader();
+  var view = document.getElementById("view"); view.innerHTML = "";
+  document.getElementById("fab").style.display = ui.tab === "orders" ? "flex" : "none";
+  [].forEach.call(document.querySelectorAll("#tabs button"), function(b){ b.classList.toggle("on", b.getAttribute("data-tab") === ui.tab); });
+  view.appendChild(ui.tab === "orders" ? viewOrders() : ui.tab === "clients" ? viewClients() : viewSettings());
+}
+[].forEach.call(document.querySelectorAll("#tabs button"), function(b){
+  b.addEventListener("click", function(){ ui.tab = b.getAttribute("data-tab"); render(); window.scrollTo(0,0); });
+});
+document.getElementById("fab").addEventListener("click", function(){ newOrderModal(); });
+document.getElementById("me").addEventListener("click", openProfile);
+document.getElementById("logo").appendChild(svgNode(LOGO));
+document.getElementById("favicon").setAttribute("href", "data:image/svg+xml," + encodeURIComponent(LOGO));
+
+load();
+applyTheme();
+render();
+initPhotos().then(function(){
+  render();
+  if(/[?&]action=new\b/.test(location.search)){   /* raccourci « Nouvelle commande » de l'icône */
+    try{ history.replaceState(null, "", location.pathname); }catch(e){}
+    newOrderModal();
+  }
+});
+registerSW();
+})();
+</script>
+</body>
+</html>
