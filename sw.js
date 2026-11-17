@@ -1,14 +1,14 @@
 /* Fil d'Or : service worker (mode sans connexion) */
-const VERSION = "fildor-v2";
+const VERSION = "fildor-v7";
 const CORE = ["./", "./index.html", "./manifest.webmanifest"];
 const EXTRA = [
-  "./icon-2.svg",
-  "./icon-192-1.png",
-  "./icon-512-1.png",
-  "./icon-maskable-192-1.png",
-  "./icon-maskable-512-1.png",
-  "./apple-touch-icon-2.png",
-  "./favicon-32-1.png"
+  "./fo-icon.svg",
+  "./fo-192.png",
+  "./fo-512.png",
+  "./fo-maskable-192.png",
+  "./fo-maskable-512.png",
+  "./fo-apple-touch.png",
+  "./fo-favicon-32.png"
 ];
 self.addEventListener("install", function (event) {
   event.waitUntil(

@@ -3,20 +3,21 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#1f2a5c">
+<meta name="theme-color" content="#7b2f14">
 <title>Fil d'Or : atelier de couture</title>
 <link rel="manifest" href="manifest.webmanifest">
-<link rel="icon" id="favicon" type="image/png" href="favicon-32.png">
-<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" id="favicon" type="image/png" href="fo-favicon-32.png">
+<link rel="apple-touch-icon" href="fo-apple-touch.png">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Fil d'Or">
-<meta name="description" content="Gestion d'atelier de couture : commandes, mesures, photos de modèles, acomptes, rappels WhatsApp. Fonctionne sans connexion.">
+<meta name="description" content="Gestion d'atelier de couture : clients, mesures, photos de modèles, acomptes, reçus, rappels WhatsApp. Fonctionne sans connexion.">
 <style>
 :root{
-  --indigo:#1f2a5c; --indigo-2:#2d3b7a; --ochre:#d99a1e; --ochre-soft:#f1d9a0; --terra:#b5482a;
-  --cream:#f6efe2; --paper:#fffdf8; --ink:#231f1a; --muted:#6f6556; --line:#e2d6bf; --green:#1f7a4d;
-  --tint:31,42,92; --on-accent:#1a1a1a;
+  --indigo:#7b2f14; --indigo-2:#985d48; --ochre:#e3a32b; --ochre-soft:#efce90; --terra:#b5482a;
+  --rb:10px 3px 10px 3px; --rc:12px 3px 12px 3px; --ri:3px 16px 16px 3px;
+  --cream:#f6e6d0; --paper:#fffaf2; --ink:#2a1a12; --muted:#7a6552; --line:#e6d2b4; --green:#1f7a4d;
+  --tint:123,47,20; --on-accent:#1a1a1a;
   --st-wait:#9a6700; --st-wait-bg:#fbefd2; --st-prog:#2a6fb0; --st-prog-bg:#dfeaf7;
   --st-ready:#1f7a4d; --st-ready-bg:#dcf1e5; --st-done:#6b6559; --st-done-bg:#e8e6e1;
   --st-late:#b5482a; --st-late-bg:#f9e0d9;
@@ -36,6 +37,11 @@ body{
 }
 
 body.nomotif{background-image:none}
+body.shape-rond{--rb:999px; --rc:18px; --ri:6px 22px 22px 6px}
+body.shape-droit{--rb:4px; --rc:4px; --ri:3px}
+body.notape .tape{display:none}
+body.nostitch .item::before,body.nostitch .item::after{display:none}
+body.nostitch .item{padding-left:16px}
 /* ===== En-tête : logo, atelier, profil, mètre ruban ===== */
 .topwrap{position:sticky;top:0;z-index:5;box-shadow:0 2px 8px rgba(var(--tint),.25)}
 .top{background:var(--indigo);color:#fff;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px}
@@ -52,7 +58,7 @@ body.nomotif{background-image:none}
 .tape{height:16px;background:
   linear-gradient(90deg,#3b2f1e 1px,transparent 1px) 0 100%/8px 6px repeat-x,
   linear-gradient(90deg,#3b2f1e 1px,transparent 1px) 0 100%/40px 12px repeat-x,
-  #e9c46a}
+  var(--ochre)}
 
 main{max-width:720px;margin:0 auto;padding:14px 16px}
 
@@ -63,14 +69,14 @@ h3{font:700 1.02rem var(--serif);color:var(--indigo);margin:18px 0 6px}
 
 /* ===== Statistiques ===== */
 .cards{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:12px}
-.stat{background:var(--paper);border:1px solid var(--line);border-radius:12px 3px 12px 3px;padding:10px 6px;text-align:center;position:relative}
+.stat{background:var(--paper);border:1px solid var(--line);border-radius:var(--rc);padding:10px 6px;text-align:center;position:relative}
 .stat b{display:block;font:700 1.2rem var(--serif);color:var(--indigo)}
 .stat span{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
 .stat.bad b{color:var(--terra)} .stat.warn b{color:#9a6a00}
 
 /* ===== Filtres ===== */
 .chips{display:flex;flex-wrap:wrap;gap:12px 8px;padding:6px 6px 8px;margin:0 -6px 6px}
-.chip{--c:var(--indigo);display:inline-flex;align-items:center;gap:7px;border:none;background:var(--c);color:#fff;border-radius:10px 3px 10px 3px;padding:9px 13px;font-size:.88rem;font-weight:600;white-space:nowrap;cursor:pointer;flex:1 1 auto;justify-content:center}
+.chip{--c:var(--indigo);display:inline-flex;align-items:center;gap:7px;border:none;background:var(--c);color:#fff;border-radius:var(--rb);padding:9px 13px;font-size:.88rem;font-weight:600;white-space:nowrap;cursor:pointer;flex:1 1 auto;justify-content:center}
 .chip[data-f="En attente"]{--c:var(--st-wait)}
 .chip[data-f="En cours"]{--c:var(--st-prog)}
 .chip[data-f="Prêt"]{--c:var(--st-ready)}
@@ -81,7 +87,7 @@ h3{font:700 1.02rem var(--serif);color:var(--indigo);margin:18px 0 6px}
 
 /* ===== Fiche de commande : étiquette de tailleur ===== */
 .list{display:flex;flex-direction:column;gap:10px}
-.item{position:relative;display:flex;gap:10px;align-items:flex-start;background:var(--paper);border:1px solid var(--line);border-left:7px solid var(--ochre);border-radius:3px 16px 16px 3px;padding:14px 14px 14px 30px;cursor:pointer;box-shadow:0 1px 0 rgba(0,0,0,.04)}
+.item{position:relative;display:flex;gap:10px;align-items:flex-start;background:var(--paper);border:1px solid var(--line);border-left:7px solid var(--ochre);border-radius:var(--ri);padding:14px 14px 14px 30px;cursor:pointer;box-shadow:0 1px 0 rgba(0,0,0,.04)}
 .item::before{content:"";position:absolute;left:8px;top:14px;width:11px;height:11px;border-radius:50%;background:var(--cream);box-shadow:inset 0 1px 3px rgba(0,0,0,.4)}
 .item::after{content:"";position:absolute;inset:5px 5px 5px 2px;border:1.5px dashed rgba(var(--tint),.22);border-radius:2px 12px 12px 2px;pointer-events:none}
 .item[data-s="En attente"]{border-left-color:var(--st-wait)}
@@ -105,18 +111,65 @@ input,select,textarea{width:100%;padding:11px 10px;border:none;border-bottom:2px
 input:focus,select:focus,textarea:focus{outline:none;border-bottom-color:var(--ochre);background:#fff}
 textarea{min-height:70px;resize:vertical}
 label{display:block;font-size:.76rem;color:var(--muted);margin:12px 0 2px;text-transform:uppercase;letter-spacing:.05em}
-button{font:inherit;cursor:pointer;border-radius:10px 3px 10px 3px;border:1.5px solid var(--indigo-2);background:transparent;color:var(--indigo);padding:10px 14px}
+button{font:inherit;cursor:pointer;border-radius:var(--rb);border:1.5px solid var(--indigo-2);background:transparent;color:var(--indigo);padding:10px 14px}
 button.primary{background:var(--indigo);color:#fff;border-color:var(--indigo);border-bottom:3px solid var(--ochre);font-weight:700}
 button.danger{color:var(--terra);border-color:var(--terra)}
-a.btn{display:inline-block;text-decoration:none;border-radius:10px 3px 10px 3px;padding:10px 14px;border:1.5px solid var(--indigo-2);color:var(--indigo);background:transparent}
+a.btn{display:inline-block;text-decoration:none;border-radius:var(--rb);padding:10px 14px;border:1.5px solid var(--indigo-2);color:var(--indigo);background:transparent}
 a.btn.wa{background:#1f7a4d;color:#fff;border-color:#1f7a4d;font-weight:700}
 .row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;align-items:center}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .note{font-size:.82rem;color:var(--muted);margin-top:8px}
+/* paiements et reçus */
+.pay{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px dashed var(--line)}
+.pay .pl{flex:1;min-width:0;display:flex;flex-direction:column}
+.pay .pl span{color:var(--muted);font-size:.8rem;overflow-wrap:anywhere}
+.pay .pshot{width:40px;height:40px;object-fit:cover;border-radius:6px;border:1px solid var(--line);cursor:pointer}
+button.mini{padding:6px 10px;font-size:.85rem}
+.shotrow{display:flex;align-items:center;gap:10px;margin-top:8px}
+.shotrow img{width:52px;height:52px;object-fit:cover;border-radius:6px;border:1px solid var(--line)}
+#logo img{width:100%;height:100%;object-fit:cover;display:block;border-radius:50%}
+.sw .dots{display:grid;place-items:center;overflow:hidden;font:700 1.3rem var(--serif);color:var(--indigo)}
+.sw .dots svg,.sw .dots img{width:100%;height:100%;display:block;object-fit:cover}
+.rimg{width:100%;height:auto;display:block;border:1px solid var(--line);border-radius:6px;background:#fff}
+.jobs{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.jobs button{padding:18px 8px;font:700 1.05rem var(--serif);text-align:center}
 
 /* ===== Bouton + Commande : bouton de couture ===== */
 .fab{position:fixed;right:16px;bottom:86px;display:flex;align-items:center;gap:8px;background:var(--ochre);color:var(--on-accent);border:none;border-radius:999px;padding:12px 20px 12px 14px;font-weight:800;box-shadow:0 5px 16px rgba(var(--tint),.35);z-index:6;outline:2px dashed rgba(var(--tint),.6);outline-offset:-5px}
 .fab i{font:700 1.5rem/1 var(--serif);width:26px;height:26px;border-radius:50%;background:var(--on-accent);color:var(--ochre);display:grid;place-items:center;font-style:normal}
+
+/* ===== Tableau de bord & Caisse ===== */
+.hello{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;margin:2px 2px 12px}
+.hello h2{margin:0;font:700 1.55rem/1.1 var(--serif);color:var(--ink)}
+.hello small{display:block;font:600 .78rem var(--sans,inherit);color:var(--muted);text-transform:capitalize;margin-top:3px}
+.cash{display:block;width:100%;text-align:left;border:none;cursor:pointer;color:#fff;border-radius:var(--rc);padding:16px 18px 15px;margin:0 0 12px;
+  background:linear-gradient(135deg,var(--indigo) 0%,var(--indigo-2) 140%);position:relative;overflow:hidden;box-shadow:0 6px 16px rgba(var(--tint),.28)}
+.cash::after{content:"";position:absolute;right:-26px;top:-26px;width:110px;height:110px;border-radius:50%;border:14px solid rgba(255,255,255,.08)}
+.cash .k{display:flex;align-items:center;gap:8px;font-size:.74rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase;opacity:.85}
+.cash .k svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.cash .v{font:700 1.9rem/1.15 var(--serif);margin:6px 0 10px;letter-spacing:.01em}
+.bar{height:10px;border-radius:99px;background:rgba(255,255,255,.22);overflow:hidden}
+.bar i{display:block;height:100%;min-width:6px;border-radius:99px;background:var(--ochre);box-shadow:0 0 0 1px rgba(255,255,255,.25) inset}
+.cash .s{display:flex;justify-content:space-between;gap:8px;font-size:.8rem;margin-top:8px;opacity:.92}
+.cash.big .v{font-size:2.3rem}
+.mini{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.mini div{background:var(--paper);border:1px solid var(--line);border-radius:var(--rc);padding:11px 12px}
+.mini b{display:block;font:700 1.12rem var(--serif);color:var(--indigo)}
+.mini span{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.mrow{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 12px}
+.mrow button{border:1px solid var(--line);background:var(--paper);border-radius:99px;width:40px;height:40px;font:700 1.2rem var(--serif);color:var(--indigo);cursor:pointer}
+.mrow button:disabled{opacity:.35}
+.mrow b{font:700 1.05rem var(--serif);text-transform:capitalize;color:var(--ink)}
+.mode{margin:0 0 10px}
+.mode .t{display:flex;justify-content:space-between;font-size:.9rem;font-weight:600;margin-bottom:4px}
+.mode .t span:last-child{font-family:var(--serif);color:var(--indigo)}
+.mode .b{height:8px;border-radius:99px;background:var(--line);overflow:hidden}
+.mode .b i{display:block;height:100%;border-radius:99px;background:var(--ochre)}
+.pay{display:flex;align-items:center;gap:12px;background:var(--paper);border:1px solid var(--line);border-left:4px solid var(--green);border-radius:var(--ri);padding:10px 12px;margin:0 0 8px;cursor:pointer}
+.pay .a{font:700 1.02rem var(--serif);color:var(--green);white-space:nowrap}
+.pay .w{flex:1;min-width:0}
+.pay .w b{display:block;font-size:.92rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pay .w span{font-size:.78rem;color:var(--muted)}
 
 /* ===== Navigation basse ===== */
 nav.tabs{position:fixed;left:0;right:0;bottom:0;background:var(--paper);border-top:2px dashed var(--ochre);display:flex;z-index:7;padding-bottom:env(safe-area-inset-bottom)}
@@ -134,7 +187,7 @@ nav.tabs button.on::before{content:"";position:absolute;top:-7px;left:50%;margin
 .sheet .x{position:absolute;right:8px;top:6px;border:none;font-size:1.6rem;padding:2px 10px;background:none;color:var(--indigo)}
 .kv{display:flex;justify-content:space-between;gap:12px;padding:6px 0;border-bottom:1px dashed var(--line)}
 .kv span:last-child{text-align:right}
-.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:96px;background:var(--indigo);color:#fff;padding:10px 16px;border-radius:10px 3px 10px 3px;z-index:40;font-size:.9rem;border-bottom:3px solid var(--ochre);max-width:90vw}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:96px;background:var(--indigo);color:#fff;padding:10px 16px;border-radius:var(--rb);z-index:40;font-size:.9rem;border-bottom:3px solid var(--ochre);max-width:90vw}
 
 /* ===== Photos du modèle ===== */
 .pgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:4px}
@@ -169,12 +222,12 @@ nav.tabs button.on::before{content:"";position:absolute;top:-7px;left:50%;margin
 
 /* ===== Thème : palettes et fonds ===== */
 .sws{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.sw{display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 4px;border:1.5px solid var(--line);border-radius:10px 3px 10px 3px;background:var(--paper);font-size:.78rem;color:var(--ink)}
+.sw{display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 4px;border:1.5px solid var(--line);border-radius:var(--rb);background:var(--paper);font-size:.78rem;color:var(--ink)}
 .sw .dots{width:34px;height:34px;border-radius:50%;display:block}
 .sw.on{border-color:var(--indigo);box-shadow:inset 0 0 0 2px var(--indigo);font-weight:700}
 .sw.on span:last-child::before{content:"✓ "}
 input[type=color]{padding:3px;height:44px;cursor:pointer}
-.updatebar{position:fixed;left:12px;right:12px;bottom:148px;z-index:45;background:var(--indigo);color:#fff;border-radius:12px 3px 12px 3px;border-bottom:3px solid var(--ochre);padding:10px 12px;display:flex;gap:10px;align-items:center;justify-content:space-between;font-size:.88rem;box-shadow:0 6px 18px rgba(var(--tint),.4)}
+.updatebar{position:fixed;left:12px;right:12px;bottom:148px;z-index:45;background:var(--indigo);color:#fff;border-radius:var(--rc);border-bottom:3px solid var(--ochre);padding:10px 12px;display:flex;gap:10px;align-items:center;justify-content:space-between;font-size:.88rem;box-shadow:0 6px 18px rgba(var(--tint),.4)}
 .updatebar .btns{display:flex;gap:6px;flex:none}
 .updatebar button{background:var(--ochre);color:var(--on-accent);border:none;font-weight:700;padding:8px 12px;white-space:nowrap}
 .updatebar button.later{background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,.5);font-weight:600}
@@ -215,6 +268,9 @@ input[type=color]{padding:3px;height:44px;cursor:pointer}
   </button>
   <button type="button" data-tab="clients">
     <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.6"/><path d="M4.5 20c.8-4 3.5-6 7.5-6s6.700 2 7.500 6"/></svg>Clients
+  </button>
+  <button type="button" data-tab="cash">
+    <svg viewBox="0 0 24 24"><path d="M4.5 7.5V6.2A1.7 1.7 0 0 1 6.2 4.5H17"/><rect x="3" y="7.5" width="18" height="12.5" rx="2.6"/><path d="M21 12.2h-4.2a2 2 0 0 0 0 4H21"/><circle cx="16.9" cy="14.2" r=".5"/></svg>Caisse
   </button>
   <button type="button" data-tab="settings">
     <svg viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h2M10 17h10M4 12h16"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg>Réglages
@@ -266,21 +322,29 @@ function initials(name){
 }
 function photoIds(orders, profile){
   var ids = [];
-  (orders||[]).forEach(function(o){ var p = o.photos || {}; Object.keys(p).forEach(function(k){ if(p[k]) ids.push(p[k]); }); });
+  (orders||[]).forEach(function(o){
+    var p = o.photos || {}; Object.keys(p).forEach(function(k){ if(p[k]) ids.push(p[k]); });
+    (o.payments||[]).forEach(function(pm){ if(pm && pm.shot) ids.push(pm.shot); });
+  });
   if(profile && profile.photo) ids.push(profile.photo);
+  if(profile && profile.logoPhoto) ids.push(profile.logoPhoto);
   return ids;
 }
 /* --- Thème --- */
-var DEFAULT_THEME = {preset:"fildor", main:"#1f2a5c", accent:"#d99a1e", bg:"creme", motif:true};
+var DEFAULT_THEME = {preset:"wax", main:"#7b2f14", accent:"#e3a32b", bg:"sable", motif:false, tape:true, stitch:false, shape:"artisan"};
 var PRESETS = [
-  {id:"fildor",name:"Fil d'Or",main:"#1f2a5c",accent:"#d99a1e"},
-  {id:"emeraude",name:"Émeraude",main:"#0f5c4a",accent:"#e0a526"},
+  {id:"wax",name:"Wax",main:"#7b2f14",accent:"#e3a32b"},
+  {id:"foret",name:"Forêt & laiton",main:"#1d4d3a",accent:"#c9a227"},
+  {id:"terre",name:"Terre & cuivre",main:"#8a3b22",accent:"#c9803a"},
+  {id:"nuit",name:"Nuit & corail",main:"#1b1b2f",accent:"#ff7a59"},
+  {id:"fildor",name:"Indigo & or",main:"#1f2a5c",accent:"#d99a1e"},
   {id:"bordeaux",name:"Bordeaux",main:"#6b1d2e",accent:"#d9a441"},
   {id:"ardoise",name:"Ardoise",main:"#2b3440",accent:"#e07a3f"},
-  {id:"ocean",name:"Océan",main:"#0b4f6c",accent:"#f2a65a"},
-  {id:"terre",name:"Terre",main:"#5a3a22",accent:"#c8892b"}
+  {id:"ocean",name:"Océan",main:"#0b4f6c",accent:"#f2a65a"}
 ];
 var BGS = {
+  sable:{name:"Sable",cream:"#f6e6d0",paper:"#fffaf2",line:"#e6d2b4",ink:"#2a1a12",muted:"#7a6552"},
+  ivoire:{name:"Ivoire",cream:"#f4f1e6",paper:"#fffef8",line:"#ddd6bd",ink:"#1f2420",muted:"#66695b"},
   creme:{name:"Crème",cream:"#f6efe2",paper:"#fffdf8",line:"#e2d6bf",ink:"#231f1a",muted:"#6f6556"},
   perle:{name:"Perle",cream:"#eceff3",paper:"#ffffff",line:"#d5dbe3",ink:"#1d232b",muted:"#5f6a77"},
   sable:{name:"Sable",cream:"#efe2c8",paper:"#fbf4e4",line:"#dcc9a3",ink:"#2a2218",muted:"#74644a"}
@@ -296,7 +360,7 @@ function buildTheme(t){
   t = t || {};
   var main = darkEnough(hexToRgb(t.main) ? t.main : DEFAULT_THEME.main);
   var acc = hexToRgb(t.accent) ? t.accent : DEFAULT_THEME.accent;
-  var bg = BGS[t.bg] || BGS.creme;
+  var bg = BGS[t.bg] || BGS.sable;
   return {"--indigo":main, "--indigo-2":mixHex(main,"#ffffff",0.22), "--ochre":acc, "--ochre-soft":mixHex(acc,"#ffffff",0.55),
     "--on-accent":readableOn(acc), "--tint":hexToRgb(main).join(","), "--cream":bg.cream, "--paper":bg.paper, "--line":bg.line, "--ink":bg.ink, "--muted":bg.muted};
 }
@@ -307,20 +371,41 @@ function daysLate(o, today){
 }
 /* ===== END-PURE ===== */
 
-var LOGO = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Fil d\'Or"><circle cx="32" cy="32" r="31" fill="#1f2a5c"/><circle cx="32" cy="32" r="27" fill="none" stroke="#f1d9a0" stroke-width="3" stroke-dasharray="1 3.71"/><circle cx="32" cy="32" r="22" fill="none" stroke="#d99a1e" stroke-width="1" stroke-dasharray="2 2.2"/><path d="M19 47 L42 18" stroke="#f6c453" stroke-width="2.6" stroke-linecap="round" fill="none"/><ellipse cx="41" cy="19.6" rx="1.3" ry="3.3" transform="rotate(38 41 19.6)" fill="#1f2a5c" stroke="#f6c453" stroke-width="1.1"/><path d="M41.6 19 C 54 17, 55 33, 44 36 C 33 39, 31 49, 43 50" fill="none" stroke="#ffd978" stroke-width="1.8" stroke-linecap="round"/></svg>';
+function emblem(kind, main, acc){
+  var soft = mixHex(acc, "#ffffff", 0.45), a = acc;
+  var glyph = '<path d="M19 47 L42 18" stroke="'+a+'" stroke-width="2.8" stroke-linecap="round" fill="none"/><ellipse cx="41" cy="19.6" rx="1.4" ry="3.4" transform="rotate(38 41 19.6)" fill="'+main+'" stroke="'+a+'" stroke-width="1.2"/><path d="M41.6 19 C 54 17, 55 33, 44 36 C 33 39, 31 49, 43 50" fill="none" stroke="'+soft+'" stroke-width="2" stroke-linecap="round"/>';
+  return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Logo"><circle cx="32" cy="32" r="31" fill="'+main+'"/><circle cx="32" cy="32" r="27" fill="none" stroke="'+soft+'" stroke-width="2" stroke-linecap="round" stroke-dasharray="0.1 3.39"/><g transform="translate(-3 -1)">' + glyph + '</g></svg>';
+}
+var LOGO_IMG = "data:image/jpeg;base64,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";
+var LOGO = emblem("brand", "#7b2f14", "#e3a32b");
 var HANGER = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 9V7.5a2.2 2.2 0 1 0-2.2-2.2"/><path d="M12 9L2.8 17a1.4 1.4 0 0 0 .9 2.5h16.600a1.4 1.4 0 0 0 .9-2.500z"/></svg>';
 var PERSON = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="8" r="3.6"/><path d="M4.500 20c.8-4 3.500-6 7.500-6s6.700 2 7.500 6"/></svg>';
-var SLOTS = [["front","Devant"],["back","Dos"],["left","Côté gauche"],["right","Côté droit"]];
+/* ---------- Métiers : vocabulaire, champs et photos propres à chaque activité ---------- */
+var JOBS = {
+  couture:{label:"Couture", sub:"Atelier de couture", titlePh:"Ex. : Maître couturier", item:"couture",
+    descPh:"Ex. : Robe pagne, manches longues, doublure", measTitle:"Mesures (cm)", measLabel:"Mesures à enregistrer", unit:true,
+    fields:["Poitrine","Taille","Hanches","Épaules","Longueur manche","Tour de bras","Longueur haut/robe","Longueur pantalon","Cou"],
+    modelTitle:"Modèle souhaité", notesPh:"Préférences, remarques",
+    slots:[["front","Devant"],["back","Dos"],["left","Côté gauche"],["right","Côté droit"]],
+    demo:{clients:[{name:"Aminata Diallo",phone:"0812345678",m:{"Poitrine":"92","Taille":"74","Hanches":"98","Longueur haut/robe":"110"},notes:"Aime les manches bouffantes"},
+                   {name:"Jean Mbuyi",phone:"0998765432",m:{"Épaules":"46","Cou":"39","Longueur pantalon":"104"},notes:""}],
+          orders:[{c:0,desc:"Robe pagne, manches longues",price:45000,due:3,status:"En cours",paid:20000,mode:"Espèces"},
+                  {c:1,desc:"Costume 2 pièces",price:80000,due:-2,status:"En attente",paid:30000,mode:"Orange Money",ref:"CI240611.1530.A48213"},
+                  {c:0,desc:"Chemise wax",price:15000,due:10,status:"Prêt",paid:15000,mode:"Espèces"}]}},
+};
+var JOB_KEYS = ["couture"];
+var SLOTS = JOBS.couture.slots;
+var PAY_MODES = ["Espèces","Orange Money","Wave","MTN MoMo","Moov Money","M-Pesa","Airtel Money","Virement","Autre"];
 
-var APP_VERSION = "1.0.0";
+var APP_VERSION = "1.5.0";
 var KEY = "atelier_couture_v1";
-var DEFAULT_FIELDS = ["Poitrine","Taille","Hanches","Épaules","Longueur manche","Tour de bras","Longueur haut/robe","Longueur pantalon","Cou"];
+var DEFAULT_FIELDS = JOBS.couture.fields;
 var state = {
-  settings:{cc:"243", cur:"XOF", fields:DEFAULT_FIELDS.slice(), theme:Object.assign({}, DEFAULT_THEME)},
-  profile:{name:"", title:"", shop:"", phone:"", address:"", photo:""},
+  settings:{cc:"243", cur:"XOF", job:"couture", themeV:3, goal:0, logo:{type:"brand"}, fields:DEFAULT_FIELDS.slice(), theme:Object.assign({}, DEFAULT_THEME)},
+  profile:{name:"", title:"", shop:"", phone:"", address:"", photo:"", logoPhoto:""},
   clients:[], orders:[]
 };
-var ui = { tab:"orders", filter:"Tous", q:"" };
+var ui = { tab:"orders", filter:"Tous", q:"", cashMonth:"" };
 var thumbs = {};   /* id -> miniature (dataURL), gardée en mémoire */
 
 function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
@@ -333,11 +418,31 @@ function load(){
       state.clients = d.clients; state.orders = d.orders;
       if(d.settings) state.settings = Object.assign(state.settings, d.settings);
       if(d.profile) state.profile = Object.assign(state.profile, d.profile);
+      var rawTheme = (d.settings && d.settings.theme) || null;
       state.settings.theme = Object.assign({}, DEFAULT_THEME, state.settings.theme || {});
+      if(!d.settings || d.settings.themeV !== 3){
+        /* nouvelle identité : anciens thèmes d'origine remplacés par le nouveau, thèmes personnalisés conservés */
+        var oldV = d.settings ? d.settings.themeV : undefined;
+        if(!rawTheme || (rawTheme.preset === "fildor" && rawTheme.bg === "creme") || (rawTheme.preset === "foret" && rawTheme.bg === "ivoire")) state.settings.theme = Object.assign({}, DEFAULT_THEME);
+        else if(oldV !== 2) state.settings.theme.stitch = true;
+        state.settings.themeV = 3;
+      }
+      state.settings.logo = Object.assign({type:"brand"}, state.settings.logo || {});
       if(d.settings && d.settings.shop && !state.profile.shop) state.profile.shop = d.settings.shop; /* ancienne version */
       if(!Array.isArray(state.settings.fields) || !state.settings.fields.length) state.settings.fields = DEFAULT_FIELDS.slice();
+      /* données d'une version précédente : c'était forcément de la couture */
+      if(state.settings.job && state.settings.job !== "couture") state.settings.fields = JOBS.couture.fields.slice();
+      state.settings.job = "couture";
     }
   }catch(e){}
+  applyJob();
+}
+function J(){ return JOBS[state.settings.job] || JOBS.couture; }
+function applyJob(){ SLOTS = J().slots; }
+function setJob(key){
+  if(!JOBS[key]) return;
+  state.settings.job = key; state.settings.fields = JOBS[key].fields.slice();
+  applyJob(); save(); render();
 }
 function clientOf(id){ return state.clients.find(function(c){ return c.id === id; }); }
 
@@ -404,11 +509,15 @@ function processImage(file, maxSide, quality, square){
     img.src = url;
   });
 }
-function addModelPhoto(file){
-  var id = "m_" + uid();
+function addModelPhoto(file, prefix){
+  var id = (prefix || "m_") + uid();
   return Promise.all([processImage(file,1000,0.75,false), processImage(file,360,0.7,false)]).then(function(r){
     return Promise.all([idbPut(id, r[0]), idbPut(id+":t", r[1])]).then(function(){ thumbs[id] = r[1]; return id; });
   });
+}
+function addLogo(file){
+  var id = "av_lg_" + uid();
+  return processImage(file,256,0.85,true).then(function(d){ return idbPut(id, d).then(function(){ thumbs[id] = d; return id; }); });
 }
 function addAvatar(file){
   var id = "av_" + uid();
@@ -535,10 +644,25 @@ function avatarNode(){
   else a.appendChild(svgNode(PERSON));
   return a;
 }
+function logoNode(){
+  var lg = state.settings.logo || {type:"brand"}, id = state.profile.logoPhoto;
+  if(lg.type === "photo" && id && thumbs[id]) return h("img",{src:thumbs[id],alt:"Logo"});
+  return h("img",{src:LOGO_IMG,alt:"Fil d'Or"});
+}
+function logoDataUrl(main, acc){
+  var lg = state.settings.logo || {type:"brand"}, id = state.profile.logoPhoto;
+  if(lg.type === "photo" && id && thumbs[id]) return thumbs[id];
+  return LOGO_IMG;
+}
+function renderLogo(){
+  var el = document.getElementById("logo"); if(!el) return;
+  el.innerHTML = ""; el.appendChild(logoNode());
+}
 function renderHeader(){
   var p = state.profile;
+  renderLogo();
   document.getElementById("shopTitle").textContent = p.shop || "Fil d'Or";
-  document.getElementById("subTitle").textContent = p.title || (p.shop ? "Atelier de couture" : "Atelier de couture");
+  document.getElementById("subTitle").textContent = p.title || J().sub;
   var me = document.getElementById("me"); me.innerHTML = "";
   me.appendChild(avatarNode());
   me.appendChild(h("span",{class:"nm",text:p.name || "Mon profil"}));
@@ -546,8 +670,8 @@ function renderHeader(){
 function openProfile(){
   var p = state.profile;
   var name = h("input",{value:p.name,placeholder:"Ex. : Adama Kouassi"});
-  var title = h("input",{value:p.title,placeholder:"Ex. : Maître couturier"});
-  var shop = h("input",{value:p.shop,placeholder:"Nom de l'atelier"});
+  var title = h("input",{value:p.title,placeholder:J().titlePh});
+  var shop = h("input",{value:p.shop,placeholder:"Nom de votre activité"});
   var phone = h("input",{value:p.phone,placeholder:"Téléphone",inputmode:"tel"});
   var addr = h("input",{value:p.address,placeholder:"Quartier, ville"});
   var holder = h("div",{class:"pro"});
@@ -558,7 +682,7 @@ function openProfile(){
     holder.innerHTML = "";
     holder.appendChild(avatarNode());
     holder.appendChild(h("div",{class:"who",text:name.value.trim() || "Votre nom"}));
-    holder.appendChild(h("div",{class:"sub",text:[title.value.trim(), shop.value.trim()].filter(Boolean).join(" · ") || "Votre titre et votre atelier"}));
+    holder.appendChild(h("div",{class:"sub",text:[title.value.trim(), shop.value.trim()].filter(Boolean).join(" · ") || "Votre titre et votre activité"}));
   }
   [name,title,shop].forEach(function(i){ i.addEventListener("input", drawPro); });
   file.addEventListener("change", function(){
@@ -577,7 +701,7 @@ function openProfile(){
       file),
     h("label",{text:"Nom complet"}), name,
     h("label",{text:"Titre"}), title,
-    h("label",{text:"Atelier"}), shop,
+    h("label",{text:"Nom de l'activité"}), shop,
     h("label",{text:"Téléphone"}), phone,
     h("label",{text:"Adresse"}), addr,
     h("p",{class:"note",text:"Ces informations apparaissent sur vos reçus et dans vos messages WhatsApp aux clients."}),
@@ -669,8 +793,51 @@ function statusTag(status){ return h("span",{class:"tag","data-s":status}, h("i"
 function applyTheme(){
   var v = buildTheme(state.settings.theme), st = document.documentElement.style;
   Object.keys(v).forEach(function(k){ st.setProperty(k, v[k]); });
-  document.body.classList.toggle("nomotif", !state.settings.theme.motif);
+  var th = state.settings.theme, cl = document.body.classList;
+  cl.toggle("nomotif", !th.motif); cl.toggle("notape", th.tape === false); cl.toggle("nostitch", !th.stitch);
+  cl.remove("shape-rond","shape-droit"); if(th.shape === "rond" || th.shape === "droit") cl.add("shape-" + th.shape);
+  renderLogo();
   var m = document.querySelector('meta[name="theme-color"]'); if(m) m.setAttribute("content", v["--indigo"]);
+}
+function identitySection(){
+  var s = state.settings, p = state.profile, v = buildTheme(s.theme);
+  var wrap = h("div",{});
+  wrap.appendChild(h("div",{class:"sec",text:"Identité"}));
+  var name = h("input",{value:p.shop,placeholder:"Ex. : Atelier Adama",maxlength:"40","aria-label":"Nom de votre activité"});
+  name.addEventListener("input", function(){ p.shop = name.value; renderHeader(); });
+  name.addEventListener("change", function(){ p.shop = name.value.trim(); save(); renderHeader(); });
+  wrap.appendChild(h("label",{text:"Nom de votre activité (en haut et sur les reçus)",style:"margin-top:0"}));
+  wrap.appendChild(name);
+  wrap.appendChild(h("label",{text:"Logo"}));
+  var file = h("input",{type:"file",accept:"image/*",style:"display:none"});
+  file.addEventListener("change", function(){
+    var f = file.files && file.files[0]; if(!f) return;
+    addLogo(f).then(function(id){
+      if(p.logoPhoto) removePhoto(p.logoPhoto);
+      p.logoPhoto = id; s.logo.type = "photo"; save(); render(); toast("Logo enregistré.");
+    }).catch(function(){ toast("Image illisible, essayez-en une autre."); });
+  });
+  function opt(type, label, node, onpick){
+    var on = s.logo.type === type;
+    return h("button",{class:"sw"+(on?" on":""),type:"button","data-logo":type,"aria-pressed":on?"true":"false",onclick:onpick || function(){ s.logo.type = type; save(); render(); }},
+      h("span",{class:"dots",style:"background:var(--cream);border:1px solid var(--line)"}, node), h("span",{text:label}));
+  }
+  var has = !!(p.logoPhoto && thumbs[p.logoPhoto]);
+  var row = h("div",{class:"sws"});
+  row.appendChild(opt("brand","Fil d'Or", h("img",{src:LOGO_IMG,alt:""})));
+  row.appendChild(opt("photo","Mon image", has ? h("img",{src:thumbs[p.logoPhoto],alt:""}) : h("span",{text:"+"}),
+    function(){ if(has){ s.logo.type = "photo"; save(); render(); } else file.click(); }));
+  wrap.appendChild(row);
+  if(has){
+    wrap.appendChild(h("div",{class:"row"},
+      h("button",{type:"button",text:"Changer mon image",onclick:function(){ file.click(); }}),
+      h("button",{type:"button",text:"Retirer mon image",onclick:function(){
+        removePhoto(p.logoPhoto); p.logoPhoto = ""; if(s.logo.type === "photo") s.logo.type = "brand"; save(); render();
+      }})));
+  }
+  wrap.appendChild(file);
+  wrap.appendChild(h("p",{class:"note",text:"Votre nom et votre logo apparaissent en haut de l'application et sur vos reçus. L'icône sur l'écran d'accueil du téléphone reste celle de l'application : elle est fixée au moment de l'installation."}));
+  return wrap;
 }
 function themeSection(){
   var t = state.settings.theme;
@@ -703,18 +870,114 @@ function themeSection(){
       h("span",{class:"dots",style:"background:linear-gradient(135deg,"+b.cream+" 50%,"+b.paper+" 50%);border:1px solid "+b.line}), h("span",{text:b.name})));
   });
   wrap.appendChild(bgs);
+  wrap.appendChild(h("label",{text:"Forme des boutons et des fiches"}));
+  var shapes = h("div",{class:"sws"});
+  [["artisan","Artisan"],["rond","Arrondi"],["droit","Droit"]].forEach(function(sh){
+    var on = (t.shape || "artisan") === sh[0];
+    shapes.appendChild(h("button",{class:"sw"+(on?" on":""),type:"button","aria-pressed":on?"true":"false",text:sh[1],onclick:function(){ setTheme({shape:sh[0]}, true); }}));
+  });
+  wrap.appendChild(shapes);
   wrap.appendChild(h("div",{class:"row"},
     h("button",{type:"button","aria-pressed":t.motif?"true":"false",text:"Motif de fond : "+(t.motif ? "activé" : "désactivé"),onclick:function(){ setTheme({motif:!t.motif}, true); }}),
+    h("button",{type:"button","aria-pressed":t.tape !== false?"true":"false",text:"Ruban de mesure : "+(t.tape !== false ? "activé" : "désactivé"),onclick:function(){ setTheme({tape:t.tape === false}, true); }}),
+    h("button",{type:"button","aria-pressed":t.stitch?"true":"false",text:"Coutures sur les fiches : "+(t.stitch ? "activées" : "désactivées"),onclick:function(){ setTheme({stitch:!t.stitch}, true); }}),
     h("button",{type:"button",text:"Rétablir le thème d'origine",onclick:function(){ state.settings.theme = Object.assign({}, DEFAULT_THEME); applyTheme(); save(); render(); toast("Thème d'origine rétabli."); }})
   ));
   return wrap;
 }
 
 /* ---------- Vue Commandes ---------- */
+/* ---------- Caisse : encaissements du mois ---------- */
+var WALLET_SVG = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4.5 7.5V6.2A1.7 1.7 0 0 1 6.2 4.5H17"/><rect x="3" y="7.5" width="18" height="12.5" rx="2.6"/><path d="M21 12.2h-4.2a2 2 0 0 0 0 4H21"/><circle cx="16.9" cy="14.2" r=".5"/></svg>';
+function monthKeyOf(iso){ return (iso || "").slice(0,7); }
+function shiftMonth(key, d){ var p = key.split("-"), y = +p[0], m = +p[1] - 1 + d; y += Math.floor(m/12); m = ((m % 12) + 12) % 12; return y + "-" + String(m+1).padStart(2,"0"); }
+function monthLabel(key){ var p = key.split("-"); return new Date(+p[0], +p[1]-1, 1).toLocaleDateString("fr-FR",{month:"long",year:"numeric"}); }
+function cashStats(key){
+  var r = {total:0, count:0, modes:{}, list:[]};
+  state.orders.forEach(function(o){ (o.payments||[]).forEach(function(p){
+    if(monthKeyOf(p.date) !== key) return;
+    var a = num(p.amount); r.total += a; r.count++;
+    var md = p.mode || "Autre"; r.modes[md] = (r.modes[md]||0) + a;
+    r.list.push({o:o, p:p, a:a});
+  }); });
+  r.list.sort(function(x,y){ return (y.p.date||"").localeCompare(x.p.date||""); });
+  return r;
+}
+function outstanding(){ return state.orders.reduce(function(s,o){ return s + balanceOf(o); }, 0); }
+function cashCard(key, big, onclick){
+  var st = cashStats(key), goal = num(state.settings.goal), out = outstanding();
+  var pct = goal > 0 ? Math.min(1, st.total / goal) : (st.total + out > 0 ? st.total / (st.total + out) : 0);
+  var k = h("div",{class:"k"}); k.appendChild(svgNode(WALLET_SVG)); k.appendChild(h("span",{text:"Encaissé · " + monthLabel(key)}));
+  var card = h(onclick ? "button" : "div", {class:"cash"+(big?" big":"")},
+    k,
+    h("div",{class:"v",text:cm(st.total)}),
+    h("div",{class:"bar"}, h("i",{style:"width:"+Math.round(pct*100)+"%"})),
+    h("div",{class:"s"},
+      h("span",{text: goal > 0 ? "Objectif : " + cm(goal) : "Reste à encaisser : " + cm(out)}),
+      h("span",{text: Math.round(pct*100) + " %"}))
+  );
+  if(onclick){ card.setAttribute("type","button"); card.addEventListener("click", onclick); }
+  return card;
+}
+function goalModal(){
+  var inp = h("input",{type:"number",min:"0",step:"any",inputmode:"decimal",placeholder:"Ex. 300000",value:num(state.settings.goal) > 0 ? String(state.settings.goal) : ""});
+  var close;
+  var body = h("div",{},
+    h("p",{class:"note",text:"Combien voulez-vous encaisser chaque mois ? La barre de la Caisse se remplit au fur et à mesure des paiements. Laissez vide pour ne pas fixer d'objectif."}),
+    h("label",{text:"Objectif mensuel ("+CUR[state.settings.cur].sym+")"}), inp,
+    h("div",{class:"row"}, h("button",{class:"primary",type:"button",text:"Enregistrer",onclick:function(){
+      state.settings.goal = Math.max(0, num(inp.value)); save(); close(); render(); toast("Objectif enregistré.");
+    }}))
+  );
+  close = modal("Objectif du mois", body);
+}
+function viewCash(){
+  var now = todayISO().slice(0,7);
+  if(!ui.cashMonth) ui.cashMonth = now;
+  var key = ui.cashMonth, st = cashStats(key), prev = cashStats(shiftMonth(key,-1));
+  var root = h("div");
+  root.appendChild(h("div",{class:"mrow"},
+    h("button",{type:"button","aria-label":"Mois précédent",text:"‹",onclick:function(){ ui.cashMonth = shiftMonth(key,-1); render(); }}),
+    h("b",{text:monthLabel(key)}),
+    h("button",{type:"button","aria-label":"Mois suivant",text:"›",disabled:key >= now,onclick:function(){ ui.cashMonth = shiftMonth(key,1); render(); }})
+  ));
+  root.appendChild(cashCard(key, true));
+  root.appendChild(h("div",{class:"row",style:"margin:0 0 12px"}, h("button",{type:"button",text:num(state.settings.goal) > 0 ? "Modifier l'objectif du mois" : "Fixer un objectif du mois",onclick:goalModal})));
+  root.appendChild(h("div",{class:"mini"},
+    h("div",{}, h("b",{text:cm(outstanding())}), h("span",{text:"Reste à encaisser"})),
+    h("div",{}, h("b",{text:String(st.count)}), h("span",{text:"Paiements ce mois"})),
+    h("div",{}, h("b",{text:cm(prev.total)}), h("span",{text:"Mois précédent"})),
+    h("div",{}, h("b",{text: st.count ? cm(st.total / st.count) : "—"}), h("span",{text:"Paiement moyen"}))
+  ));
+  var modes = Object.keys(st.modes).sort(function(a,b){ return st.modes[b] - st.modes[a]; });
+  root.appendChild(h("div",{class:"sec",text:"Par mode de paiement"}));
+  if(!modes.length) root.appendChild(h("div",{class:"empty",text:"Aucun paiement enregistré ce mois-ci."}));
+  modes.forEach(function(md){
+    root.appendChild(h("div",{class:"mode"},
+      h("div",{class:"t"}, h("span",{text:md}), h("span",{text:cm(st.modes[md])})),
+      h("div",{class:"b"}, h("i",{style:"width:"+Math.max(4,Math.round(st.modes[md] / st.total * 100))+"%"}))));
+  });
+  if(st.list.length){
+    root.appendChild(h("div",{class:"sec",text:"Paiements reçus"}));
+    st.list.forEach(function(x){
+      var c = clientOf(x.o.clientId);
+      root.appendChild(h("div",{class:"pay",onclick:function(){ openOrder(x.o.id); }},
+        h("div",{class:"w"}, h("b",{text:c ? c.name : "Client supprimé"}), h("span",{text:fdate(x.p.date) + " · " + (x.p.mode || "Autre") + (x.p.ref ? " · " + x.p.ref : "")})),
+        h("div",{class:"a",text:"+ " + cm(x.a)})));
+    });
+  }
+  return root;
+}
+
 function viewOrders(){
   var today = todayISO();
   var s = summarize(state.orders, today);
   var root = h("div");
+  var first = (state.profile.name || "").trim().split(/\s+/)[0];
+  root.appendChild(h("div",{class:"hello"}, h("div",{},
+    h("h2",{text:"Bonjour" + (first ? " " + first : "")}),
+    h("small",{text:new Date().toLocaleDateString("fr-FR",{weekday:"long",day:"numeric",month:"long"})}))));
+  root.appendChild(cashCard(today.slice(0,7), false, function(){ ui.cashMonth = ""; ui.tab = "cash"; render(); window.scrollTo(0,0); }));
   root.appendChild(h("div",{class:"cards"},
     h("div",{class:"stat bad"}, h("b",{text:String(s.late)}), h("span",{text:"En retard"})),
     h("div",{class:"stat warn"}, h("b",{text:String(s.soon)}), h("span",{text:"À livrer (7 j)"}))
@@ -771,17 +1034,23 @@ function newOrderModal(preClientId){
   var newBox = h("div",{}, h("label",{text:"Nom du client"}), nName, h("label",{text:"Téléphone"}), nPhone);
   function sync(){ newBox.style.display = sel.value === "__new" ? "block" : "none"; }
   sel.addEventListener("change", sync); sync();
-  var desc = h("textarea",{placeholder:"Ex. : Robe pagne, manches longues, doublure"});
+  var desc = h("textarea",{placeholder:J().descPh});
   var price = h("input",{type:"number",min:"0",step:"any",inputmode:"decimal",placeholder:"Prix total"});
   var dep = h("input",{type:"number",min:"0",step:"any",inputmode:"decimal",placeholder:"Acompte reçu (facultatif)"});
   var due = h("input",{type:"date",value:addDays(todayISO(),7)});
+  var depMode = h("select",{}, PAY_MODES.map(function(m){ return h("option",{value:m,text:m}); }));
+  var depRef = h("input",{placeholder:"Référence de la transaction (SMS)"});
+  var depBox = h("div",{}, h("label",{text:"Mode de paiement de l'acompte"}), depMode, h("div",{class:"refbox"}, depRef));
+  function syncDep(){ depRef.parentNode.style.display = depMode.value === "Espèces" ? "none" : "block"; }
+  depMode.addEventListener("change", syncDep); syncDep();
   var photos = {}, saved = false;
   var form = h("div",{},
     h("label",{text:"Client"}), sel, newBox,
-    h("label",{text:"Description du travail"}), desc,
-    h("label",{text:"Modèle souhaité (photos)"}),
+    h("label",{text:"Description de la commande"}), desc,
+    h("label",{text:J().modelTitle+" (photos)"}),
     photoGrid(photos, function(){}),
     h("div",{class:"grid2"}, h("div",{}, h("label",{text:"Prix total ("+CUR[state.settings.cur].sym+")"}), price), h("div",{}, h("label",{text:"Acompte"}), dep)),
+    depBox,
     h("label",{text:"Date de livraison"}), due,
     h("div",{class:"row"}, h("button",{class:"primary",type:"button",text:"Enregistrer",onclick:function(){
       var cid = sel.value;
@@ -789,12 +1058,15 @@ function newOrderModal(preClientId){
       if(cid === "__new" && !nName.value.trim()){ toast("Entrez le nom du client."); return; }
       if(p <= 0){ toast("Entrez le prix de la commande."); return; }
       if(d > p){ toast("L'acompte dépasse le prix."); return; }
+      var dr0 = depRef.value.trim();
+      if(d > 0 && depMode.value !== "Espèces" && dr0 && isDupRef(dr0) && !confirm("Cette référence de transaction est déjà enregistrée. L'utiliser quand même ?")) return;
       if(cid === "__new"){
         var c = {id:uid(), name:nName.value.trim(), phone:nPhone.value.trim(), m:{}, notes:""};
         state.clients.push(c); cid = c.id;
       }
       var o = {id:uid(), clientId:cid, desc:desc.value.trim(), price:p, due:due.value, status:"En attente", created:todayISO(), payments:[], photos:photos};
-      if(d > 0) o.payments.push({date:todayISO(), amount:d});
+      var dr = dr0;
+      if(d > 0) o.payments.push({id:uid(), date:todayISO(), amount:d, mode:depMode.value, ref:depMode.value === "Espèces" ? "" : dr, shot:""});
       state.orders.push(o); saved = true; save(); close(); render(); toast("Commande enregistrée.");
     }}))
   );
@@ -819,13 +1091,13 @@ function openOrder(id){
   statusSel.addEventListener("change", function(){ o.status = statusSel.value; save(); refresh(); });
 
   body.appendChild(h("div",{class:"kv"}, h("span",{text:"Client"}), h("b",{text:c ? c.name : "—"})));
-  body.appendChild(h("div",{class:"kv"}, h("span",{text:"Travail"}), h("span",{text:o.desc || "—"})));
+  body.appendChild(h("div",{class:"kv"}, h("span",{text:"Description"}), h("span",{text:o.desc || "—"})));
   body.appendChild(h("div",{class:"kv"}, h("span",{text:"Livraison"}), h("span",{text:fdate(o.due)})));
   body.appendChild(h("div",{class:"kv"}, h("span",{text:"Prix"}), h("span",{text:cm(o.price)})));
   body.appendChild(h("div",{class:"kv"}, h("span",{text:"Déjà payé"}), h("span",{text:cm(paidOf(o))})));
   body.appendChild(h("div",{class:"kv"}, h("b",{text:"Reste à payer"}), h("b",{text:cm(balanceOf(o))})));
 
-  body.appendChild(h("div",{class:"sec",text:"Modèle souhaité"}));
+  body.appendChild(h("div",{class:"sec",text:J().modelTitle}));
   body.appendChild(photoGrid(o.photos, function(){ save(); render(); }));
   body.appendChild(h("p",{class:"note",text:"Touchez une case pour ajouter une photo (appareil photo ou galerie). Touchez une photo pour l'agrandir."}));
 
@@ -833,31 +1105,75 @@ function openOrder(id){
   body.appendChild(h("label",{text:"Statut",style:"margin-top:0"})); body.appendChild(statusSel);
 
   var amt = h("input",{type:"number",min:"0",step:"any",inputmode:"decimal",placeholder:"Montant reçu"});
+  var mode = h("select",{}, PAY_MODES.map(function(m){ return h("option",{value:m,text:m}); }));
+  var ref = h("input",{placeholder:"Référence de la transaction (reçue par SMS)"});
+  var shotId = "";
+  var shotBox = h("div",{class:"shotrow"});
+  var shotFile = h("input",{type:"file",accept:"image/*",style:"display:none"});
+  function drawShot(){
+    shotBox.innerHTML = "";
+    if(shotId && thumbs[shotId]){
+      shotBox.appendChild(h("img",{src:thumbs[shotId],alt:"Capture du paiement",onclick:function(){ lightbox(shotId,"Capture du paiement"); }}));
+      shotBox.appendChild(h("button",{type:"button",class:"mini",text:"Retirer",onclick:function(){ removePhoto(shotId); shotId = ""; drawShot(); }}));
+    } else {
+      shotBox.appendChild(h("button",{type:"button",class:"mini",text:"Joindre la capture d'écran du paiement",onclick:function(){ shotFile.click(); }}));
+    }
+  }
+  shotFile.addEventListener("change", function(){
+    var f = shotFile.files && shotFile.files[0]; if(!f) return;
+    addModelPhoto(f, "p_").then(function(id){ if(shotId) removePhoto(shotId); shotId = id; drawShot(); })
+      .catch(function(){ toast("Image illisible, essayez-en une autre."); });
+  });
+  var refBox = h("div",{class:"refbox"}, ref);
+  function syncMode(){ var cash = mode.value === "Espèces"; refBox.style.display = cash ? "none" : "block"; shotBox.style.display = cash ? "none" : "flex"; }
+  mode.addEventListener("change", syncMode); syncMode(); drawShot();
   body.appendChild(h("label",{text:"Enregistrer un paiement"}));
-  body.appendChild(h("div",{class:"row",style:"margin-top:0"}, h("div",{style:"flex:1;min-width:140px"}, amt), h("button",{class:"primary",type:"button",text:"Ajouter",onclick:function(){
+  body.appendChild(amt);
+  body.appendChild(h("label",{text:"Mode de paiement"})); body.appendChild(mode);
+  body.appendChild(refBox); body.appendChild(shotBox); body.appendChild(shotFile);
+  body.appendChild(h("div",{class:"row"}, h("button",{class:"primary",type:"button",text:"Ajouter ce paiement",onclick:function(){
     var a = num(amt.value);
     if(a <= 0){ toast("Entrez un montant."); return; }
     if(a > balanceOf(o)){ toast("Le montant dépasse le reste à payer."); return; }
-    o.payments.push({date:todayISO(), amount:a}); save(); refresh();
+    var rf = mode.value === "Espèces" ? "" : ref.value.trim();
+    if(rf && isDupRef(rf) && !confirm("Cette référence de transaction est déjà enregistrée. L'ajouter quand même ?")) return;
+    var pm = {id:uid(), date:todayISO(), amount:a, mode:mode.value, ref:rf, shot:mode.value === "Espèces" ? "" : shotId};
+    if(mode.value === "Espèces" && shotId){ removePhoto(shotId); }
+    o.payments.push(pm); save(); refresh(); receiptModal(o, pm);
   }})));
   if(o.payments.length){
-    body.appendChild(h("div",{class:"note"}, "Paiements : " + o.payments.map(function(p){ return fdate(p.date)+" "+cm(num(p.amount)); }).join(" · ")));
+    body.appendChild(h("div",{class:"sec",text:"Paiements reçus"}));
+    o.payments.forEach(function(pm){
+      body.appendChild(h("div",{class:"pay"},
+        h("div",{class:"pl"}, h("b",{text:cm(num(pm.amount))}), h("span",{text:fdate(pm.date)+" · "+(pm.mode || "Espèces")+(pm.ref ? " · réf. "+pm.ref : "")})),
+        pm.shot && thumbs[pm.shot] ? h("img",{class:"pshot",src:thumbs[pm.shot],alt:"Capture du paiement",onclick:function(){ lightbox(pm.shot,"Capture du paiement"); }}) : null,
+        h("button",{type:"button",class:"mini",text:"Reçu",onclick:function(){ receiptModal(o, pm); }}),
+        h("button",{type:"button",class:"mini danger","aria-label":"Supprimer ce paiement",text:"×",onclick:function(){
+          if(confirm("Supprimer le paiement de "+cm(num(pm.amount))+" ?")){
+            if(pm.shot) removePhoto(pm.shot);
+            o.payments = o.payments.filter(function(x){ return x !== pm; }); save(); refresh();
+          }
+        }})
+      ));
+    });
   }
 
-  var shop = state.profile.shop || "l'atelier";
+  var shop = state.profile.shop || "chez nous";
   var row = h("div",{class:"row"});
   if(c && c.phone){
-    var readyMsg = "Bonjour "+c.name+", votre commande ("+(o.desc||"couture")+") est prête. Vous pouvez passer la récupérer à "+shop+(balanceOf(o)>0 ? ". Reste à payer : "+cm(balanceOf(o))+"." : ".")+" Merci !"+sig();
-    var payMsg = "Bonjour "+c.name+", petit rappel : il reste "+cm(balanceOf(o))+" à régler pour votre commande ("+(o.desc||"couture")+"), livraison prévue le "+fdate(o.due)+". Merci !"+sig();
+    var readyMsg = "Bonjour "+c.name+", votre commande ("+(o.desc||J().item)+") est prête. Vous pouvez passer la récupérer à "+shop+(balanceOf(o)>0 ? ". Reste à payer : "+cm(balanceOf(o))+"." : ".")+" Merci !"+sig();
+    var payMsg = "Bonjour "+c.name+", petit rappel : il reste "+cm(balanceOf(o))+" à régler pour votre commande ("+(o.desc||J().item)+"), livraison prévue le "+fdate(o.due)+". Merci !"+sig();
     row.appendChild(h("a",{class:"btn wa",target:"_blank",rel:"noopener",href:waLink(c.phone, readyMsg, state.settings.cc),text:"WhatsApp : commande prête"}));
     if(balanceOf(o) > 0) row.appendChild(h("a",{class:"btn wa",target:"_blank",rel:"noopener",href:waLink(c.phone, payMsg, state.settings.cc),text:"WhatsApp : rappel de paiement"}));
   } else {
     row.appendChild(h("div",{class:"note",text:"Ajoutez le téléphone du client pour envoyer des messages WhatsApp."}));
   }
-  row.appendChild(h("button",{type:"button",text:"Imprimer la fiche / le reçu",onclick:function(){ printReceipt(o); }}));
+  row.appendChild(h("button",{type:"button",text:"Reçu en image",onclick:function(){ receiptModal(o, null); }}));
+  row.appendChild(h("button",{type:"button",text:"Imprimer la fiche",onclick:function(){ printReceipt(o); }}));
   row.appendChild(h("button",{class:"danger",type:"button",text:"Supprimer",onclick:function(){
     if(confirm("Supprimer cette commande ?")){
       Object.keys(o.photos).forEach(function(k){ removePhoto(o.photos[k]); });
+      (o.payments||[]).forEach(function(pm){ if(pm.shot) removePhoto(pm.shot); });
       state.orders = state.orders.filter(function(x){ return x.id !== id; }); save(); closeFn(); render();
     }
   }}));
@@ -870,30 +1186,167 @@ function printReceipt(o){
   r.innerHTML = "";
   var contact = [p.name && (p.name + (p.title ? " — " + p.title : "")), p.phone, p.address].filter(Boolean);
   r.appendChild(h("div",{class:"rh"},
-    svgNode(LOGO),
-    h("div",{}, h("h2",{text:p.shop || "Atelier de couture"}), contact.map(function(t){ return h("div",{text:t}); }))
+    logoNode(),
+    h("div",{}, h("h2",{text:p.shop || "Fil d'Or"}), contact.map(function(t){ return h("div",{text:t}); }))
   ));
   r.appendChild(h("div",{text:"Fiche et reçu du "+fdate(todayISO())}));
   r.appendChild(h("div",{class:"kv"}, h("span",{text:"Client"}), h("span",{text:c ? c.name : ""})));
-  r.appendChild(h("div",{class:"kv"}, h("span",{text:"Travail"}), h("span",{text:o.desc || ""})));
+  r.appendChild(h("div",{class:"kv"}, h("span",{text:"Commande"}), h("span",{text:o.desc || ""})));
   r.appendChild(h("div",{class:"kv"}, h("span",{text:"Livraison prévue"}), h("span",{text:fdate(o.due)})));
   r.appendChild(h("div",{class:"kv"}, h("span",{text:"Prix total"}), h("span",{text:cm(o.price)})));
-  (o.payments||[]).forEach(function(pm){ r.appendChild(h("div",{class:"kv"}, h("span",{text:"Paiement du "+fdate(pm.date)}), h("span",{text:cm(num(pm.amount))}))); });
+  (o.payments||[]).forEach(function(pm){ r.appendChild(h("div",{class:"kv"}, h("span",{text:"Paiement du "+fdate(pm.date)+" ("+(pm.mode || "Espèces")+(pm.ref ? ", réf. "+pm.ref : "")+")"}), h("span",{text:cm(num(pm.amount))}))); });
   r.appendChild(h("div",{class:"kv"}, h("b",{text:"Reste à payer"}), h("b",{text:cm(balanceOf(o))})));
   var ph = o.photos || {}, has = SLOTS.some(function(s){ return ph[s[0]] && thumbs[ph[s[0]]]; });
   if(has){
     var grid = h("div",{class:"rp"});
     SLOTS.forEach(function(s){ var id = ph[s[0]]; if(id && thumbs[id]) grid.appendChild(h("div",{}, h("img",{src:thumbs[id],alt:s[1]}), s[1])); });
-    r.appendChild(h("div",{style:"margin-top:12px;font-weight:700",text:"Modèle souhaité"}));
+    r.appendChild(h("div",{style:"margin-top:12px;font-weight:700",text:J().modelTitle}));
     r.appendChild(grid);
   }
   var m = c && c.m ? Object.keys(c.m) : [];
   if(m.length){
-    r.appendChild(h("div",{style:"margin-top:8px;font-weight:700",text:"Mesures (cm)"}));
+    r.appendChild(h("div",{style:"margin-top:8px;font-weight:700",text:J().measTitle}));
     r.appendChild(h("div",{text:m.map(function(k){ return k+" : "+c.m[k]; }).join(" · ")}));
   }
   r.appendChild(h("p",{text:"Merci de votre confiance."}));
   window.print();
+}
+
+/* ---------- Reçu en image (à envoyer par WhatsApp) ---------- */
+function isDupRef(rf){
+  var k = String(rf||"").trim().toLowerCase(); if(!k) return false;
+  return state.orders.some(function(o){ return (o.payments||[]).some(function(p){ return p.ref && String(p.ref).trim().toLowerCase() === k; }); });
+}
+function orderNo(o){ return String(o.id).slice(-5).toUpperCase(); }
+function wrapText(ctx, text, maxW){
+  var words = String(text||"").split(/\s+/).filter(Boolean), lines = [], cur = "";
+  words.forEach(function(w){
+    var t = cur ? cur + " " + w : w;
+    if(cur && ctx.measureText(t).width > maxW){ lines.push(cur); cur = w; } else cur = t;
+  });
+  if(cur) lines.push(cur);
+  return lines;
+}
+function loadLogo(){
+  var cs = getComputedStyle(document.documentElement);
+  var src = logoDataUrl(cs.getPropertyValue("--indigo").trim() || "#1d4d3a", cs.getPropertyValue("--ochre").trim() || "#c9a227");
+  return new Promise(function(res){
+    var img = new Image();
+    img.onload = function(){ res(img); };
+    img.onerror = function(){ res(null); };
+    img.src = src;
+  });
+}
+function receiptCanvas(o, pm){
+  return loadLogo().then(function(logo){
+    var c = clientOf(o.clientId), p = state.profile, W = 800, pad = 44;
+    var cs = getComputedStyle(document.documentElement);
+    var main = cs.getPropertyValue("--indigo").trim() || "#1f2a5c", acc = cs.getPropertyValue("--ochre").trim() || "#d99a1e";
+    var SER = 'Georgia, "Times New Roman", serif', SAN = 'system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif';
+    var INK = "#231f1a", MUTED = "#6f6556", LINE = "#d9ccb2";
+    var pays = o.payments || [], paid = paidOf(o), bal = balanceOf(o);
+    function paint(ctx, H){
+      var y;
+      ctx.textBaseline = "alphabetic";
+      if(H){ ctx.fillStyle = "#fffdf8"; ctx.fillRect(0,0,W,H); }
+      ctx.fillStyle = main; ctx.fillRect(0,0,W,150);
+      ctx.fillStyle = acc; ctx.fillRect(0,150,W,6);
+      if(logo){ ctx.save(); ctx.beginPath(); ctx.arc(pad + 45, 75, 45, 0, Math.PI * 2); ctx.clip(); ctx.drawImage(logo, pad, 30, 90, 90); ctx.restore(); }
+      ctx.textAlign = "left"; ctx.fillStyle = "#ffffff"; ctx.font = "700 34px " + SER;
+      ctx.fillText(p.shop || "Fil d'Or", 156, 70, W - 156 - pad);
+      ctx.font = "400 20px " + SAN; ctx.fillStyle = "rgba(255,255,255,.88)";
+      var l1 = p.name ? p.name + (p.title ? " — " + p.title : "") : "";
+      var l2 = [p.phone, p.address].filter(Boolean).join("  ·  ");
+      if(l1) ctx.fillText(l1, 156, 100, W - 156 - pad);
+      if(l2) ctx.fillText(l2, 156, l1 ? 128 : 104, W - 156 - pad);
+
+      y = 206;
+      ctx.fillStyle = main; ctx.font = "700 30px " + SER; ctx.textAlign = "left";
+      ctx.fillText(pm ? "REÇU DE PAIEMENT" : "SITUATION DE LA COMMANDE", pad, y);
+      ctx.textAlign = "right"; ctx.fillStyle = MUTED; ctx.font = "600 20px " + SAN;
+      var no = "N° " + orderNo(o) + (pm ? "-" + (pays.indexOf(pm) + 1) : "");
+      ctx.fillText(no, W - pad, y - 6);
+      ctx.font = "400 19px " + SAN;
+      ctx.fillText(fdate(pm ? pm.date : todayISO()), W - pad, y + 18);
+      y += 56;
+
+      function dash(yy){ ctx.save(); ctx.setLineDash([5,5]); ctx.strokeStyle = LINE; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(pad,yy); ctx.lineTo(W-pad,yy); ctx.stroke(); ctx.restore(); }
+      function row(label, value, bold, color){
+        ctx.textAlign = "left"; ctx.fillStyle = MUTED; ctx.font = "400 21px " + SAN; ctx.fillText(label, pad, y);
+        ctx.textAlign = "right"; ctx.fillStyle = color || INK; ctx.font = (bold ? "700 " : "400 ") + "23px " + SAN; ctx.fillText(value, W - pad, y, W - pad*2 - 190);
+        dash(y + 16); y += 48;
+      }
+      row("Client", c ? c.name : "—", true);
+      if(c && c.phone) row("Téléphone", c.phone, false);
+      ctx.textAlign = "left"; ctx.fillStyle = MUTED; ctx.font = "400 21px " + SAN; ctx.fillText("Commande", pad, y); y += 32;
+      ctx.fillStyle = INK; ctx.font = "400 24px " + SAN;
+      wrapText(ctx, o.desc || "—", W - pad*2).forEach(function(line){ ctx.fillText(line, pad, y); y += 32; });
+      dash(y - 8); y += 26;
+      if(o.due) row("Livraison prévue", fdate(o.due), false);
+      row("Prix total", cm(num(o.price)), true);
+
+      y += 4;
+      ctx.textAlign = "left"; ctx.fillStyle = main; ctx.font = "700 22px " + SER; ctx.fillText("Paiements", pad, y); y += 34;
+      if(!pays.length){ ctx.fillStyle = MUTED; ctx.font = "italic 21px " + SAN; ctx.fillText("Aucun paiement enregistré.", pad, y); y += 40; }
+      pays.forEach(function(x, i){
+        var hl = x === pm, hasRef = !!x.ref, h2 = hasRef ? 74 : 48;
+        if(hl){ ctx.fillStyle = "rgba(217,154,30,.20)"; ctx.fillRect(pad - 12, y - 28, W - pad*2 + 24, h2 - 6); }
+        ctx.textAlign = "left"; ctx.fillStyle = INK; ctx.font = (hl ? "700 " : "400 ") + "21px " + SAN;
+        ctx.fillText(fdate(x.date) + "  ·  " + (x.mode || "Espèces"), pad, y, W - pad*2 - 200);
+        if(hasRef){ ctx.fillStyle = MUTED; ctx.font = "400 17px " + SAN; ctx.fillText("réf. " + x.ref, pad, y + 24, W - pad*2 - 200); }
+        ctx.textAlign = "right"; ctx.fillStyle = INK; ctx.font = (hl ? "700 " : "400 ") + "23px " + SAN; ctx.fillText(cm(num(x.amount)), W - pad, y);
+        y += h2;
+      });
+      dash(y - 22); y += 10;
+      row("Total payé", cm(paid), true);
+      ctx.textAlign = "left"; ctx.fillStyle = INK; ctx.font = "700 26px " + SER; ctx.fillText("Reste à payer", pad, y + 4);
+      ctx.textAlign = "right"; ctx.fillStyle = bal > 0 ? "#b5482a" : "#1f7a4d"; ctx.font = "700 32px " + SAN;
+      ctx.fillText(bal > 0 ? cm(bal) : "SOLDÉ", W - pad, y + 6);
+      y += 64;
+
+      ctx.textAlign = "center"; ctx.fillStyle = INK; ctx.font = "italic 22px " + SER; ctx.fillText("Merci de votre confiance.", W/2, y); y += 30;
+      var who = [p.name, p.shop].filter(Boolean).join(", ");
+      if(who){ ctx.fillStyle = MUTED; ctx.font = "400 19px " + SAN; ctx.fillText("— " + who, W/2, y); y += 26; }
+      ctx.fillStyle = "#a89c86"; ctx.font = "400 15px " + SAN; ctx.fillText("Reçu créé avec Fil d'Or", W/2, y + 14);
+      return y + 44;
+    }
+    var tmp = document.createElement("canvas"); tmp.width = W; tmp.height = 10;
+    var H = Math.ceil(paint(tmp.getContext("2d"), 0));
+    var cv = document.createElement("canvas"); cv.width = W; cv.height = H;
+    paint(cv.getContext("2d"), H);
+    return cv;
+  });
+}
+function receiptModal(o, pm){
+  var box = h("div",{}, h("p",{class:"note",text:"Préparation du reçu…"}));
+  modal(pm ? "Reçu de paiement" : "Reçu de la commande", box);
+  receiptCanvas(o, pm).then(function(cv){
+    cv.toBlob(function(blob){
+      if(!blob){ box.innerHTML = ""; box.appendChild(h("p",{class:"note",text:"Impossible de créer l'image."})); return; }
+      var c = clientOf(o.clientId);
+      var name = "recu-" + orderNo(o) + (pm ? "-" + (o.payments.indexOf(pm) + 1) : "") + ".png";
+      var file = null; try{ file = new File([blob], name, {type:"image/png"}); }catch(e){}
+      var url = URL.createObjectURL(blob);
+      var text = "Bonjour " + (c ? c.name : "") + ", voici votre reçu" + (pm ? " pour le paiement de " + cm(num(pm.amount)) : "") + ". " +
+                 (balanceOf(o) > 0 ? "Reste à payer : " + cm(balanceOf(o)) + "." : "Votre commande est entièrement payée.") + sig();
+      box.innerHTML = "";
+      box.appendChild(h("img",{class:"rimg",src:url,alt:"Reçu"}));
+      var row = h("div",{class:"row"});
+      var canShare = !!(file && navigator.canShare && navigator.canShare({files:[file]}) && navigator.share);
+      if(canShare){
+        row.appendChild(h("button",{class:"primary",type:"button",text:"Envoyer par WhatsApp…",onclick:function(){
+          navigator.share({files:[file], text:text}).catch(function(){});
+        }}));
+      } else if(c && c.phone){
+        row.appendChild(h("a",{class:"btn wa",target:"_blank",rel:"noopener",href:waLink(c.phone, text, state.settings.cc),text:"Ouvrir WhatsApp"}));
+      }
+      row.appendChild(h("a",{class:"btn",href:url,download:name,text:"Enregistrer l'image"}));
+      box.appendChild(row);
+      box.appendChild(h("p",{class:"note",text: canShare
+        ? "Choisissez WhatsApp dans la liste, puis le contact du client. L'image du reçu part avec le message."
+        : "Enregistrez l'image, puis joignez-la dans la conversation WhatsApp du client."}));
+    }, "image/png");
+  }).catch(function(){ box.innerHTML = ""; box.appendChild(h("p",{class:"note",text:"Impossible de créer l'image."})); });
 }
 
 /* ---------- Vue Clients ---------- */
@@ -935,13 +1388,14 @@ function clientModal(id){
   var mInputs = {};
   var mGrid = h("div",{class:"grid2"});
   fields.forEach(function(f){
-    var inp = h("input",{type:"number",min:"0",step:"any",inputmode:"decimal",value:(c.m && c.m[f]) || "",placeholder:"cm"});
+    var inp = J().unit ? h("input",{type:"number",min:"0",step:"any",inputmode:"decimal",value:(c.m && c.m[f]) || "",placeholder:"cm"})
+                       : h("input",{type:"text",value:(c.m && c.m[f]) || "",placeholder:""});
     mInputs[f] = inp;
     mGrid.appendChild(h("div",{}, h("label",{text:f}), inp));
   });
-  var notes = h("textarea",{placeholder:"Préférences, remarques"}); notes.value = c.notes || "";
+  var notes = h("textarea",{placeholder:J().notesPh}); notes.value = c.notes || "";
   var body = h("div",{}, h("label",{text:"Nom"}), name, h("label",{text:"Téléphone"}), phone,
-    h("div",{class:"sec",text:"Mesures (cm)"}), mGrid, h("label",{text:"Notes"}), notes);
+    h("div",{class:"sec",text:J().measTitle}), mGrid, h("label",{text:"Notes"}), notes);
   var row = h("div",{class:"row"});
   row.appendChild(h("button",{class:"primary",type:"button",text:"Enregistrer",onclick:function(){
     if(!name.value.trim()){ toast("Entrez le nom."); return; }
@@ -956,7 +1410,7 @@ function clientModal(id){
     row.appendChild(h("button",{class:"danger",type:"button",text:"Supprimer",onclick:function(){
       var mine = state.orders.filter(function(o){ return o.clientId === c.id; });
       if(confirm("Supprimer ce client"+(mine.length ? " et ses "+mine.length+" commande(s)" : "")+" ?")){
-        mine.forEach(function(o){ Object.keys(o.photos||{}).forEach(function(k){ removePhoto(o.photos[k]); }); });
+        mine.forEach(function(o){ Object.keys(o.photos||{}).forEach(function(k){ removePhoto(o.photos[k]); }); (o.payments||[]).forEach(function(pm){ if(pm.shot) removePhoto(pm.shot); }); });
         state.clients = state.clients.filter(function(x){ return x.id !== c.id; });
         state.orders = state.orders.filter(function(o){ return o.clientId !== c.id; });
         save(); close(); render();
@@ -994,6 +1448,7 @@ function importBackup(d){
     if(d.settings) state.settings = Object.assign(state.settings, d.settings);
     if(d.profile) state.profile = Object.assign(state.profile, d.profile);
     state.settings.theme = Object.assign({}, DEFAULT_THEME, state.settings.theme || {});
+    state.settings.logo = Object.assign({type:"brand"}, state.settings.logo || {});
     applyTheme(); save(); render();
   });
 }
@@ -1021,15 +1476,16 @@ function viewSettings(){
     r.readAsText(f);
   });
   return h("div",{},
+    identitySection(),
     themeSection(),
     h("div",{class:"sec",text:"Préférences"}),
     h("label",{text:"Indicatif téléphonique du pays (pour WhatsApp)",style:"margin-top:0"}), cc,
     h("label",{text:"Monnaie"}), cur,
-    h("label",{text:"Mesures à enregistrer (séparées par des virgules)"}), flds,
+    h("label",{text:J().measLabel+" (séparés par des virgules)"}), flds,
     h("div",{class:"row"}, h("button",{class:"primary",type:"button",text:"Enregistrer les réglages",onclick:function(){
       s.cc = cc.value.replace(/\D/g,"") || "243"; s.cur = cur.value;
       var list = flds.value.split(",").map(function(x){ return x.trim(); }).filter(Boolean);
-      s.fields = list.length ? list : DEFAULT_FIELDS.slice();
+      s.fields = list.length ? list : J().fields.slice();
       save(); render(); toast("Réglages enregistrés.");
     }})),
     appSection(),
@@ -1044,22 +1500,19 @@ function viewSettings(){
       h("button",{class:"danger",type:"button",text:"Tout effacer",onclick:function(){
         if(confirm("Effacer toutes les données et photos de cet appareil ?")){
           photoIds(state.orders, state.profile).forEach(removePhoto);
-          state.clients = []; state.orders = []; state.profile.photo = ""; save(); render();
+          state.clients = []; state.orders = []; state.profile.photo = ""; state.profile.logoPhoto = ""; state.settings.logo = {type:"brand"}; save(); render();
         }
       }}))
   );
 }
 
 function loadDemo(){
-  var t = todayISO();
-  var c1 = {id:uid(),name:"Aminata Diallo",phone:"0812345678",m:{"Poitrine":"92","Taille":"74","Hanches":"98","Longueur haut/robe":"110"},notes:"Aime les manches bouffantes"};
-  var c2 = {id:uid(),name:"Jean Mbuyi",phone:"0998765432",m:{"Épaules":"46","Cou":"39","Longueur pantalon":"104"},notes:""};
-  state.clients.push(c1, c2);
-  state.orders.push(
-    {id:uid(),clientId:c1.id,desc:"Robe pagne, manches longues",price:45000,due:addDays(t,3),status:"En cours",created:t,payments:[{date:t,amount:20000}],photos:{}},
-    {id:uid(),clientId:c2.id,desc:"Costume 2 pièces",price:80000,due:addDays(t,-2),status:"En attente",created:t,payments:[{date:t,amount:30000}],photos:{}},
-    {id:uid(),clientId:c1.id,desc:"Chemise wax",price:15000,due:addDays(t,10),status:"Prêt",created:t,payments:[{date:t,amount:15000}],photos:{}}
-  );
+  var t = todayISO(), d = J().demo, cs = [];
+  d.clients.forEach(function(x){ var c = {id:uid(), name:x.name, phone:x.phone, m:Object.assign({}, x.m), notes:x.notes || ""}; cs.push(c); state.clients.push(c); });
+  d.orders.forEach(function(x){
+    state.orders.push({id:uid(), clientId:cs[x.c].id, desc:x.desc, price:x.price, due:addDays(t, x.due), status:x.status, created:t,
+      payments:[{id:uid(), date:t, amount:x.paid, mode:x.mode, ref:x.ref || "", shot:""}], photos:{}});
+  });
   save(); ui.tab = "orders"; render(); toast("Exemple chargé.");
 }
 
@@ -1069,15 +1522,13 @@ function render(){
   var view = document.getElementById("view"); view.innerHTML = "";
   document.getElementById("fab").style.display = ui.tab === "orders" ? "flex" : "none";
   [].forEach.call(document.querySelectorAll("#tabs button"), function(b){ b.classList.toggle("on", b.getAttribute("data-tab") === ui.tab); });
-  view.appendChild(ui.tab === "orders" ? viewOrders() : ui.tab === "clients" ? viewClients() : viewSettings());
+  view.appendChild(ui.tab === "orders" ? viewOrders() : ui.tab === "clients" ? viewClients() : ui.tab === "cash" ? viewCash() : viewSettings());
 }
 [].forEach.call(document.querySelectorAll("#tabs button"), function(b){
   b.addEventListener("click", function(){ ui.tab = b.getAttribute("data-tab"); render(); window.scrollTo(0,0); });
 });
 document.getElementById("fab").addEventListener("click", function(){ newOrderModal(); });
 document.getElementById("me").addEventListener("click", openProfile);
-document.getElementById("logo").appendChild(svgNode(LOGO));
-document.getElementById("favicon").setAttribute("href", "data:image/svg+xml," + encodeURIComponent(LOGO));
 
 load();
 applyTheme();
