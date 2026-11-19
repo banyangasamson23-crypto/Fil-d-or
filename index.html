@@ -397,7 +397,8 @@ var JOB_KEYS = ["couture"];
 var SLOTS = JOBS.couture.slots;
 var PAY_MODES = ["Espèces","Orange Money","Wave","MTN MoMo","Moov Money","M-Pesa","Airtel Money","Virement","Autre"];
 
-var APP_VERSION = "1.5.1";
+var APP_VERSION = "1.6.0";
+var FEEDBACK_WA = "243991403688";
 var KEY = "atelier_couture_v1";
 var DEFAULT_FIELDS = JOBS.couture.fields;
 var state = {
@@ -1487,6 +1488,14 @@ function viewSettings(){
       var list = flds.value.split(",").map(function(x){ return x.trim(); }).filter(Boolean);
       s.fields = list.length ? list : J().fields.slice();
       save(); render(); toast("Réglages enregistrés.");
+    }})),
+    h("div",{class:"sec",text:"Votre avis"}),
+    h("p",{class:"note",text:"Une idée, un problème, un mot d'encouragement ? Écrivez-nous sur WhatsApp : chaque avis nous aide à améliorer Fil d'Or."}),
+    h("div",{class:"row"}, h("button",{class:"primary",type:"button",text:"Donner mon avis",onclick:function(){
+      var msg = "Bonjour, voici mon avis sur Fil d'Or (version "+APP_VERSION+") : ";
+      var url = "https://wa.me/"+FEEDBACK_WA+"?text="+encodeURIComponent(msg);
+      var w = null; try{ w = window.open(url,"_blank"); }catch(e){}
+      if(!w) location.href = url;
     }})),
     appSection(),
     h("div",{class:"sec",text:"Sauvegarde"}),

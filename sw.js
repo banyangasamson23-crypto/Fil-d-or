@@ -1,5 +1,5 @@
 /* Fil d'Or : service worker (mode sans connexion) */
-const VERSION = "fildor-v8";
+const VERSION = "fildor-v9";
 const CORE = ["./", "./index.html", "./manifest.webmanifest"];
 const EXTRA = [
   "./fo-icon.svg",
